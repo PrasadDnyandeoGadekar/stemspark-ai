@@ -1,20 +1,24 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Home from './pages/Home';
 
 function App() {
   return (
     <Router>
-      {/* The Navbar sits outside the Routes so it always stays on screen */}
       <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Top Navigation */}
         <Navbar />
         
-        {/* The main content area where pages will load */}
+        {/* Main Content Area */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
           </Routes>
         </main>
+
+        {/* Bottom Footer */}
+        <Footer />
       </div>
     </Router>
   );
