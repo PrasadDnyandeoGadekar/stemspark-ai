@@ -1,3 +1,8 @@
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { getAITutorResponse } from '../utils/gemini';
@@ -78,7 +83,14 @@ function Tutor() {
                   : 'bg-gray-100 text-gray-800 rounded-tl-none'
               }`}>
                 {/* We use whitespace-pre-wrap so Gemini's line breaks render correctly */}
-                <p className="leading-relaxed text-[15px] whitespace-pre-wrap">{message.content}</p>
+                <div className="leading-relaxed text-[15px] prose prose-sm max-w-none">
+  <ReactMarkdown
+    remarkPlugins={[remarkGfm, remarkMath]}
+    rehypePlugins={[rehypeKatex]}
+  >
+    {message.content}
+  </ReactMarkdown>
+</div>
               </div>
 
               {message.role === 'user' && (
