@@ -1,77 +1,91 @@
 import React from 'react';
-import { BookOpen, Trophy, Clock, PlayCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Sparkles, LogOut, BookOpen, Clock } from 'lucide-react';
 
 function Dashboard() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  // Failsafe: If someone types /dashboard in the URL without logging in
+  if (!user) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-gray-50">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
+        <p className="text-gray-600 mb-6">Please sign in to view your dashboard.</p>
+        <button 
+          onClick={() => navigate('/login')}
+          className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-sm"
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
+  // Extract first name from Google Display Name
+  const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Student';
+
   return (
-    <div className="bg-gray-50 min-h-[calc(100vh-4rem)] py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between mb-8">
+        <div className="mb-6 sm:mb-0 text-center sm:text-left">
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">
+            Welcome back, {firstName}!
+          </h1>
+          <p className="text-indigo-100 text-lg max-w-xl">
+            Your AI tutor is standing by. Review your recent sessions or start a new deep dive.
+          </p>
+        </div>
         
-        {/* Welcome Banner */}
-        <div className="bg-indigo-600 rounded-3xl p-8 sm:p-10 text-white shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
-          {/* Background decorative circles */}
-          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-64 h-64 bg-indigo-500 rounded-full opacity-50 blur-3xl"></div>
-          
-          <div className="relative z-10 text-center md:text-left mb-6 md:mb-0">
-            <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">Welcome back, Student!</h1>
-            <p className="text-indigo-100 text-lg">You've studied for 4 hours this week. Keep the spark alive!</p>
+        {/* Google Profile Picture */}
+        {user.photoURL ? (
+          <img
+            src={user.photoURL}
+            alt="Profile"
+            className="w-24 h-24 rounded-full border-4 border-white/30 shadow-xl object-cover"
+            referrerPolicy="no-referrer" // Required to display Google images securely
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-white/20 border-4 border-white/30 flex items-center justify-center text-3xl font-bold shadow-xl">
+            {firstName.charAt(0)}
           </div>
-          <button className="relative z-10 flex items-center bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-colors shadow-md">
-            <PlayCircle className="w-5 h-5 mr-2" />
-            Resume Learning
-          </button>
-        </div>
+        )}
+      </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          {/* Stat Card 1 */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center transform hover:-translate-y-1 transition-transform">
-            <div className="bg-blue-100 p-4 rounded-xl mr-4"><BookOpen className="text-blue-600 w-7 h-7" /></div>
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Active Courses</p>
-              <p className="text-2xl font-bold text-gray-900">3</p>
-            </div>
+      {/* Quick Actions Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        
+        {/* Launch Tutor Card */}
+        <button
+          onClick={() => navigate('/tutor')}
+          className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-300 transition-all group"
+        >
+          <div className="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <Sparkles className="w-8 h-8 text-indigo-600" />
           </div>
-          {/* Stat Card 2 */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center transform hover:-translate-y-1 transition-transform">
-            <div className="bg-amber-100 p-4 rounded-xl mr-4"><Trophy className="text-amber-600 w-7 h-7" /></div>
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Badges Earned</p>
-              <p className="text-2xl font-bold text-gray-900">7</p>
-            </div>
-          </div>
-          {/* Stat Card 3 */}
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center transform hover:-translate-y-1 transition-transform">
-            <div className="bg-emerald-100 p-4 rounded-xl mr-4"><Clock className="text-emerald-600 w-7 h-7" /></div>
-            <div>
-              <p className="text-gray-500 text-sm font-medium">Total Study Hours</p>
-              <p className="text-2xl font-bold text-gray-900">32</p>
-            </div>
-          </div>
-        </div>
+          <span className="text-xl font-bold text-gray-900">Launch AI Tutor</span>
+          <span className="text-sm text-gray-500 mt-2">Start a new study session</span>
+        </button>
 
-        {/* Continue Learning Section */}
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-6">Continue Learning</h2>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-            <div className="flex items-center mb-4 sm:mb-0">
-              <div className="bg-purple-100 p-4 rounded-xl mr-5">
-                <BookOpen className="text-purple-600 w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Applied Calculus for Robotics</h3>
-                <p className="text-sm text-gray-500 mt-1">Module 3: Calculating Trajectories</p>
-              </div>
-            </div>
-            <div className="text-left sm:text-right w-full sm:w-auto">
-              <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md">65% Completed</span>
-            </div>
+        {/* Logout Card */}
+        <button
+          onClick={handleLogout}
+          className="flex flex-col items-center justify-center p-8 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md hover:border-red-200 transition-all group"
+        >
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <LogOut className="w-8 h-8 text-red-500" />
           </div>
-          
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-100 rounded-full h-3 mb-2">
-            <div className="bg-indigo-600 h-3 rounded-full transition-all duration-1000 ease-out" style={{ width: '65%' }}></div>
-          </div>
-        </div>
+          <span className="text-xl font-bold text-gray-900">Log Out</span>
+          <span className="text-sm text-gray-500 mt-2">Securely sign out of your account</span>
+        </button>
 
       </div>
     </div>
