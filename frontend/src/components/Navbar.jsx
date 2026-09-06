@@ -31,6 +31,11 @@ function Navbar() {
               <span className="hidden sm:inline">AI Tutor</span>
             </Link>
             
+            {/* Added Dashboard Link */}
+            <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
+              <span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            
             {/* New Login Button */}
             <div className="pl-2 border-l border-gray-200 ml-2">
               <Link to="/login" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-bold rounded-lg text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">
