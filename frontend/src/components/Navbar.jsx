@@ -22,7 +22,7 @@ function Navbar() {
               <Home className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">Home</span>
             </Link>
-            <Link to="/" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
+            <Link to="/courses" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
               <BookOpen className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">Explore</span>
             </Link>
