@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, Sparkles, BookOpen, BrainCircuit } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Features from '../components/Features';
 
 function Home() {
   return (
@@ -69,6 +70,7 @@ function Home() {
 
         </div>
       </div>
+      <Features/>
     </div>
   );
 }
