@@ -3,6 +3,9 @@ import { Send, Bot, User, Sparkles, Loader2 } from 'lucide-react';
 import { getAITutorResponse } from '../utils/gemini';
 
 function Tutor() {
+    useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [messages, setMessages] = useState([
     {
       role: 'ai',
@@ -42,7 +45,7 @@ function Tutor() {
   };
 
   return (
-    <div className="bg-white min-h-[calc(100vh-4rem)] flex flex-col md:flex-row">
+    <div className="fixed top-16 left-0 right-0 bottom-0 bg-white flex flex-col md:flex-row overflow-hidden z-30">
       
       {/* Sidebar */}
       <div className="hidden md:flex w-64 bg-gray-50 border-r border-gray-200 flex-col p-4">
@@ -56,7 +59,7 @@ function Tutor() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full h-[calc(100vh-4rem)]">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full h-full">
         
         {/* Chat History Container */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
