@@ -26,7 +26,7 @@ function Navbar() {
               <BookOpen className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">Explore</span>
             </Link>
-            <Link to="/" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
+            <Link to="/tutor" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
               <BrainCircuit className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">AI Tutor</span>
             </Link>
