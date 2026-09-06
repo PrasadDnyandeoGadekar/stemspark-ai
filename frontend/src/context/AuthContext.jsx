@@ -1,27 +1,48 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { auth } from '../utils/firebase';
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
-// Create the context
 const AuthContext = createContext();
 
-// Create a provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fake login function (we will connect this to real database later)
-  const login = (email, password) => {
-    setUser({ email: email, name: "Student" });
+  // 1. Professional Google Login Function
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  // 2. Real Logout Function
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
+
+  // 3. Real-time Firebase Listener
+  // This watches the app and remembers who is logged in even if they refresh the page!
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, loginWithGoogle, logout }}>
+      {/* We only show the website once Firebase has finished checking who is logged in */}
+      {!loading && children} 
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use the auth context easily
 export const useAuth = () => useContext(AuthContext);
