@@ -1,10 +1,11 @@
 function App() {
-    return (
-        <div>
-              <h1>STEMSpark AI is running!</h1>
-                  </div>
-                    );
-                    }
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <h1 className="text-4xl font-bold text-blue-600">
+        STEMSpark AI is styled!
+      </h1>
+    </div>
+  );
+}
 
-                    export default App;
-                    
+export default App;
