@@ -6,59 +6,85 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { getAITutorResponse } from '../utils/gemini';
+import { useAuth } from '../context/AuthContext';
+import { db } from '../utils/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 function Tutor() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'ai',
-      content: "Hello! I'm your STEMSpark AI tutor. I'm connected and ready to help you with math problems, science experiments, or coding questions. What would you like to learn today?"
-    }
-  ]);
-  
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const messagesEndRef = useRef(null);
 
-  // Force scroll to top when page first loads
+  // 1. Fetch Chat History from Firestore when the page loads
   useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (user) {
+        const chatRef = doc(db, 'chats', user.uid);
+        const chatSnap = await getDoc(chatRef);
+        
+        if (chatSnap.exists()) {
+          setMessages(chatSnap.data().messages);
+        } else {
+          setMessages([{
+            role: 'ai',
+            content: "Hello! I'm your STEMSpark AI tutor. I'm connected and ready to help you with math problems, science experiments, or coding questions. What would you like to learn today?"
+          }]);
+        }
+      }
+      setIsInitializing(false);
+    };
+
+    fetchChatHistory();
     window.scrollTo(0, 0);
-  }, []);
+  }, [user]);
 
   // Auto-scroll to the newest message smoothly
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Unified function to handle sending messages
+  // 2. Helper function to save messages to Firestore securely
+  const saveChatToDatabase = async (updatedMessages) => {
+    if (user) {
+      const chatRef = doc(db, 'chats', user.uid);
+      await setDoc(chatRef, { messages: updatedMessages });
+    }
+  };
+
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault(); 
-    
     if (!inputValue.trim()) return; 
 
     const userMessage = inputValue;
-    setInputValue(''); // Clear the input box instantly
+    setInputValue(''); 
     
-    // Add user message to the screen
+    // Add user message to screen AND save to database
     const newMessages = [...messages, { role: 'user', content: userMessage }];
     setMessages(newMessages);
+    await saveChatToDatabase(newMessages);
     
-    // Show the animated loading dots
     setIsTyping(true);
 
     try {
-      // Send to Gemini API and wait for the answer
+      // Get AI response
       const aiResponseText = await getAITutorResponse(messages, userMessage);
-      setMessages([...newMessages, { role: 'ai', content: aiResponseText }]);
+      
+      // Add AI response to screen AND save to database
+      const finalMessages = [...newMessages, { role: 'ai', content: aiResponseText }];
+      setMessages(finalMessages);
+      await saveChatToDatabase(finalMessages);
+      
     } catch (error) {
       console.error(error);
       setMessages([...newMessages, { role: 'ai', content: "Sorry, I had trouble connecting. Please try again." }]);
     } finally {
-      // Hide the loading dots
       setIsTyping(false);
     }
   };
 
-  // Allow sending with the Enter key
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -66,10 +92,14 @@ function Tutor() {
     }
   };
 
+  // Prevent rendering the chat until we check the database for history
+  if (isInitializing) {
+    return <div className="fixed inset-0 bg-white flex items-center justify-center">Loading session...</div>;
+  }
+
   return (
     <div className="fixed top-16 left-0 right-0 bottom-0 bg-white flex flex-col md:flex-row overflow-hidden z-30">
       
-      {/* Sidebar */}
       <div className="hidden md:flex w-64 bg-gray-50 border-r border-gray-200 flex-col p-4">
         <div className="flex items-center text-indigo-700 font-bold mb-6">
           <Sparkles className="w-5 h-5 mr-2" />
@@ -80,22 +110,18 @@ function Tutor() {
         </button>
       </div>
 
-      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full h-full">
         
-        {/* Chat History Container */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {messages.map((message, index) => (
             <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               
-              {/* AI Avatar */}
               {message.role === 'ai' && (
                 <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0 mt-1">
                   <Bot className="w-5 h-5 text-indigo-600" />
                 </div>
               )}
 
-              {/* Message Bubble */}
               <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-4 ${
                 message.role === 'user' 
                   ? 'bg-indigo-600 text-white rounded-tr-none' 
@@ -115,7 +141,6 @@ function Tutor() {
                 )}
               </div>
 
-              {/* User Avatar */}
               {message.role === 'user' && (
                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center ml-3 flex-shrink-0 mt-1">
                   <User className="w-5 h-5 text-gray-600" />
@@ -124,7 +149,6 @@ function Tutor() {
             </div>
           ))}
 
-          {/* Animated Loading Dots (Only shows when isTyping is true) */}
           {isTyping && (
             <div className="flex justify-start">
               <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0 mt-1">
@@ -138,11 +162,9 @@ function Tutor() {
             </div>
           )}
           
-          {/* Invisible Anchor for Auto-Scroll */}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Box Area */}
         <div className="p-4 border-t border-gray-100 bg-white">
           <form onSubmit={handleSendMessage} className="relative flex items-center">
             <input 
@@ -161,9 +183,6 @@ function Tutor() {
               <Send className="w-5 h-5" />
             </button>
           </form>
-          <p className="text-center text-xs text-gray-400 mt-3">
-            AI Tutor can make mistakes. Consider verifying complex equations.
-          </p>
         </div>
 
       </div>
