@@ -2,7 +2,7 @@ import React from 'react';
 
 function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="flex flex-col items-center justify-center p-8 mt-16">
       <h1 className="text-5xl font-extrabold text-indigo-700 mb-4 text-center">
         Welcome to STEMSpark AI
       </h1>
