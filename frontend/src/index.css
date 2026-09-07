@@ -1,2 +1,23 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+/* STEM Markdown Formatting Fixes */
+.prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Make math equations scrollable on mobile */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

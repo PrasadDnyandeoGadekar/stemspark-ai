@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles,PlusCircle } from 'lucide-react';
 import { getAITutorResponse } from '../utils/gemini';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../utils/firebase';
@@ -53,7 +53,21 @@ function Tutor() {
       await setDoc(chatRef, { messages: updatedMessages });
     }
   };
-
+// Wipe the screen and reset the database to start a new topic
+  const handleNewSession = async () => {
+    const defaultMessage = [{
+      role: 'ai',
+      content: "Hello! I'm your STEMSpark AI tutor. I'm connected and ready to help you with math problems, science experiments, or coding questions. What would you like to learn today?"
+    }];
+    
+    setMessages(defaultMessage); // 1. Instantly clear the screen
+    
+    // 2. Overwrite the Firestore database with the clean slate
+    if (user) {
+      const chatRef = doc(db, 'chats', user.uid);
+      await setDoc(chatRef, { messages: defaultMessage });
+    }
+  };
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault(); 
     if (!inputValue.trim()) return; 
@@ -105,8 +119,16 @@ function Tutor() {
           <Sparkles className="w-5 h-5 mr-2" />
           Study Sessions
         </div>
-        <button className="text-left px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 shadow-sm mb-2 hover:border-indigo-300 transition-colors">
-          Current Session
+       <button className="text-left w-full px-4 py-3 bg-indigo-50 border border-indigo-200 rounded-lg text-sm font-bold text-indigo-700 shadow-sm mb-3">
+          Active Study Session
+        </button>
+        
+        <button 
+          onClick={handleNewSession}
+          className="text-left w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 shadow-sm mb-2 hover:border-indigo-400 hover:text-indigo-700 transition-colors flex items-center group"
+        >
+          <PlusCircle className="w-4 h-4 mr-2 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+          Start New Topic
         </button>
       </div>
 
@@ -130,7 +152,7 @@ function Tutor() {
                 {message.role === 'user' ? (
                   <p className="leading-relaxed text-[15px]">{message.content}</p>
                 ) : (
-                  <div className="leading-relaxed text-[15px] prose prose-sm max-w-none">
+                  <div className="leading-relaxed text-[15px] prose prose-sm max-w-none overflow-x-auto break-words">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm, remarkMath]}
                       rehypePlugins={[rehypeKatex]}
