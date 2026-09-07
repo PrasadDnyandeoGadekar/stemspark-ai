@@ -1,5 +1,6 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // <-- Imported the Brain
+import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,12 +11,15 @@ import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
-    <AuthProvider> {/* <-- Wrapped the whole app */}
+    <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Global wrapper with default text colors and flex layout to stick footer to bottom */}
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+          
           <Navbar />
           
-          <main className="flex-grow">
+          {/* flex-grow ensures the main content stretches to push the footer down on short pages */}
+          <main className="flex-grow flex flex-col relative">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/courses" element={<Courses />} />
@@ -26,6 +30,7 @@ function App() {
           </main>
 
           <Footer />
+          
         </div>
       </Router>
     </AuthProvider>
