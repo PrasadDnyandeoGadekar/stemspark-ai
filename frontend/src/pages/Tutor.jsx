@@ -9,6 +9,8 @@ import { getAITutorResponse } from '../utils/gemini';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../utils/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 function Tutor() {
   const { user } = useAuth();
@@ -156,6 +158,30 @@ function Tutor() {
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm, remarkMath]}
                       rehypePlugins={[rehypeKatex]}
+                      components={{
+                        code({ node, inline, className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || '');
+                          return !inline && match ? (
+                            <div className="rounded-md overflow-hidden my-3 shadow-md">
+                              <div className="bg-gray-800 text-gray-200 text-xs px-4 py-1 flex justify-between items-center font-mono">
+                                <span>{match[1]}</span>
+                              </div>
+                              <SyntaxHighlighter
+                                {...props}
+                                children={String(children).replace(/\n$/, '')}
+                                style={vscDarkPlus}
+                                language={match[1]}
+                                PreTag="div"
+                                customStyle={{ margin: 0, borderRadius: '0 0 0.375rem 0.375rem' }}
+                              />
+                            </div>
+                          ) : (
+                            <code {...props} className="bg-gray-200 text-red-600 px-1.5 py-0.5 rounded-md text-sm font-mono">
+                              {children}
+                            </code>
+                          );
+                        }
+                      }}
                     >
                       {message.content}
                     </ReactMarkdown>
