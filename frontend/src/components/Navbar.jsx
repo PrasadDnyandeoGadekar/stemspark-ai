@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Home, BookOpen, BrainCircuit, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
+import { Sparkles, Home, BookOpen, BrainCircuit, Trophy, LogIn, LogOut, LayoutDashboard , Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; // <-- Import the context
 
 function Navbar() {
@@ -29,13 +29,22 @@ function Navbar() {
               <Home className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">Home</span>
             </Link>
-            <Link to="/courses" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
-              <BookOpen className="h-5 w-5 sm:mr-1.5" />
-              <span className="hidden sm:inline">Explore</span>
-            </Link>
+            <Link to="/explore" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
+  <BookOpen className="h-5 w-5 sm:mr-1.5" />
+  <span className="hidden sm:inline">Explore</span>
+</Link>
             <Link to="/tutor" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
               <BrainCircuit className="h-5 w-5 sm:mr-1.5" />
               <span className="hidden sm:inline">AI Tutor</span>
+            </Link>
+            <Link to="/quiz" className="text-gray-600 hover:text-indigo-600 flex items-center font-medium transition-colors">
+              <Trophy className="h-5 w-5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Quiz</span>
+            </Link>
+
+            <Link to="/donate" className="text-rose-600 hover:text-rose-800 flex items-center font-bold transition-colors">
+              <Heart className="h-5 w-5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Donate</span>
             </Link>
             
             {/* SMART LOGIC: If user exists, show Dashboard & Logout. Else show Sign In */}

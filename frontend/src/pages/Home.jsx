@@ -6,16 +6,7 @@ import Features from '../components/Features';
 
 function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-
-  // Smart routing: sends logged-in users to the dashboard, guests to login
-  const handleStartLearning = () => {
-    if (user) {
-      navigate('/dashboard');
-    } else {
-      navigate('/login');
-    }
-  };
+  const { user } = useAuth(); // Keeping this just in case you need it for other features later
 
   return (
     <div className="bg-white selection:bg-indigo-100 selection:text-indigo-900">
@@ -47,8 +38,10 @@ function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              
+              {/* Changed onClick to navigate directly to /explore */}
               <button 
-                onClick={handleStartLearning}
+                onClick={() => navigate('/explore')}
                 className="inline-flex justify-center items-center px-8 py-4 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 Start Learning Now
