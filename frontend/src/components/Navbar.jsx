@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Home, BookOpen, BrainCircuit, Trophy, LogIn, LogOut, LayoutDashboard, Heart, Menu, X } from 'lucide-react';
+import { Sparkles, Home, BookOpen, BrainCircuit, Trophy, LogIn, LogOut, LayoutDashboard, Heart, Menu, Moon, Sun, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; // <-- Import the context
+import { useTheme } from '../context/ThemeContext';
 
 function Navbar() {
   const { user, logout } = useAuth(); // <-- Get user status
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -37,6 +39,15 @@ function Navbar() {
           </Link>
 
           <div className="hidden items-center gap-3 min-[900px]:flex xl:gap-6">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
             <Link to="/" className="flex items-center font-medium text-gray-600 transition-colors hover:text-indigo-600">
               <Home className="h-5 w-5 sm:mr-1.5" />
               <span>Home</span>
@@ -92,6 +103,15 @@ function Navbar() {
       {menuOpen && (
         <div id="mobile-navigation" className="absolute left-0 right-0 top-full border-t border-gray-100 bg-white px-4 pb-4 pt-2 shadow-lg min-[900px]:hidden">
           <div className="mx-auto grid max-w-7xl gap-1 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-left font-medium text-gray-700 hover:bg-gray-50 sm:col-span-2"
+            >
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              Switch to {theme === 'dark' ? 'light' : 'dark'} mode
+            </button>
             <Link to="/" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
               <Home className="h-5 w-5" /> Home
             </Link>

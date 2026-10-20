@@ -2,6 +2,7 @@ import Donate from './pages/Donate';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -67,30 +68,32 @@ function StudySessionTracker() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <StudySessionTracker />
-        {/* Global wrapper with default text colors and flex layout to stick footer to bottom */}
-        <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-gray-50 font-sans text-gray-900 flex flex-col">
+      <ThemeProvider>
+        <Router>
+          <StudySessionTracker />
+          {/* Global wrapper with default text colors and flex layout to stick footer to bottom */}
+          <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-gray-50 font-sans text-gray-900 flex flex-col">
 
-          <Navbar />
+            <Navbar />
 
-          {/* flex-grow ensures the main content stretches to push the footer down on short pages */}
-          <main className="flex-grow flex flex-col relative">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/tutor" element={<Tutor />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/donate" element={<Donate />} />
-              <Route path="/quiz" element={<Quiz />} />
-            </Routes>
-          </main>
+            {/* flex-grow ensures the main content stretches to push the footer down on short pages */}
+            <main className="flex-grow flex flex-col relative">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/tutor" element={<Tutor />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/donate" element={<Donate />} />
+                <Route path="/quiz" element={<Quiz />} />
+              </Routes>
+            </main>
 
-          <Footer />
+            <Footer />
 
-        </div>
-      </Router>
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
