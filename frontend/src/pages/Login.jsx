@@ -46,6 +46,7 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [needsVerification, setNeedsVerification] = useState(false);
+  const [showVerificationTips, setShowVerificationTips] = useState(false);
 
   useEffect(() => {
     if (user) navigate('/dashboard');
@@ -55,6 +56,7 @@ function Login() {
     setErrorMessage('');
     setSuccessMessage('');
     setNeedsVerification(false);
+    setShowVerificationTips(false);
   };
 
   const handleSubmit = async (event) => {
@@ -71,11 +73,16 @@ function Login() {
         await createAccount(name, email, password);
         setMode('signin');
         setSuccessMessage('Account created. Check your email for a verification link, then sign in here.');
+        setNeedsVerification(true);
+        setShowVerificationTips(true);
       } else {
         await loginWithEmail(email, password);
       }
     } catch (error) {
-      if (error.code === 'auth/email-not-verified') setNeedsVerification(true);
+      if (error.code === 'auth/email-not-verified') {
+        setNeedsVerification(true);
+        setShowVerificationTips(true);
+      }
       setErrorMessage(getAuthErrorMessage(error));
     } finally {
       setPending(false);
@@ -102,6 +109,7 @@ function Login() {
       await resendVerificationEmail(email, password);
       setNeedsVerification(true);
       setSuccessMessage('A new verification link has been sent. Check your inbox and spam folder.');
+      setShowVerificationTips(true);
     } catch (error) {
       setErrorMessage(getAuthErrorMessage(error));
     } finally {
@@ -175,6 +183,11 @@ function Login() {
         {successMessage && (
           <p role="status" className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm font-medium text-emerald-800">
             {successMessage}
+          </p>
+        )}
+        {showVerificationTips && (
+          <p className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2.5 text-sm leading-5 text-indigo-900">
+            If it is missing, check Spam/Junk and Promotions. If you find it there, mark it “Not spam” and add the sender to your contacts.
           </p>
         )}
         {errorMessage && (

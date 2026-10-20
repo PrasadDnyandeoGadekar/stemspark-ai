@@ -288,6 +288,20 @@ main {
   animation: home-float 5s ease-in-out infinite;
 }
 
+.home-course-rail {
+  scrollbar-width: thin;
+  scrollbar-color: #a5b4fc transparent;
+  scroll-padding-inline: 0.25rem;
+}
+
+.home-course-card {
+  animation: home-course-enter 560ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+.home-courses-heading {
+  animation: home-enter 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
 @keyframes home-enter {
   from {
     opacity: 0;
@@ -296,6 +310,17 @@ main {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes home-course-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -320,6 +345,32 @@ main {
 :root[data-theme="dark"] .home-page {
   background-color: #0b1020;
   color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .home-courses-section {
+  border-color: #2b3549;
+  background-color: #0e1528;
+}
+
+:root[data-theme="dark"] .home-course-card {
+  border-color: #2b3549;
+  background-color: #151c2e;
+}
+
+:root[data-theme="dark"] .home-course-card:hover {
+  border-color: #464476;
+}
+
+:root[data-theme="dark"] .home-page .home-course-card .bg-indigo-50 {
+  background-color: #252449;
+}
+
+:root[data-theme="dark"] .home-page .home-course-card .group-hover\:bg-indigo-600 {
+  background-color: #4f46e5;
+}
+
+:root[data-theme="dark"] .home-course-rail {
+  scrollbar-color: #464476 transparent;
 }
 
 :root[data-theme="dark"] .home-hero {

@@ -1,6 +1,12 @@
-import { ArrowRight, BookOpen, BrainCircuit, Check, ChevronRight, Compass, Play, Sparkles, Target, Trophy } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, BookOpen, BrainCircuit, Check, ChevronRight, Compass, Play, Sparkles, Target, Trophy } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Features from '../components/Features';
+import { useAuth } from '../context/AuthContext';
+import { verifiedCourses } from '../data/verifiedCourses';
+import { recordCourseVisit } from '../services/learningData';
+
+const featuredCourses = verifiedCourses.filter((course) => course.featured);
 
 const learningSteps = [
   {
@@ -25,6 +31,37 @@ const learningSteps = [
 
 function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const courseRailRef = useRef(null);
+  const [activeCourseCategory, setActiveCourseCategory] = useState('All');
+  const [courseTrackingError, setCourseTrackingError] = useState('');
+
+  const courseCategories = useMemo(
+    () => ['All', ...new Set(featuredCourses.map(({ category }) => category))],
+    [],
+  );
+  const visibleFeaturedCourses = useMemo(
+    () => activeCourseCategory === 'All'
+      ? featuredCourses
+      : featuredCourses.filter(({ category }) => category === activeCourseCategory),
+    [activeCourseCategory],
+  );
+
+  const scrollCourseRail = (direction) => {
+    courseRailRef.current?.scrollBy({
+      left: direction * (courseRailRef.current.clientWidth * 0.82),
+      behavior: 'smooth',
+    });
+  };
+
+  const handleFeaturedCourseOpen = (course) => {
+    try {
+      recordCourseVisit(user?.uid, course);
+      setCourseTrackingError('');
+    } catch (error) {
+      setCourseTrackingError(error.message);
+    }
+  };
 
   return (
     <div className="home-page overflow-hidden bg-white text-slate-900 selection:bg-indigo-100 selection:text-indigo-950">
@@ -115,6 +152,130 @@ function Home() {
               <span><span className="block text-xs font-extrabold text-slate-900">Your next lesson</span><span className="mt-0.5 block text-[11px] text-slate-500">Picked by your curiosity</span></span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="home-courses-section border-y border-slate-100 bg-white py-14 sm:py-18 lg:py-20" aria-labelledby="featured-courses-title">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="home-courses-heading max-w-2xl">
+              <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-indigo-700">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Hand-picked learning
+              </span>
+              <h2 id="featured-courses-title" className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                Featured courses to get you started
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
+                Explore verified lessons from trusted educators. Pick a subject and jump straight into learning.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => scrollCourseRail(-1)}
+                aria-label="Scroll featured courses left"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:-translate-x-0.5 hover:border-indigo-300 hover:text-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+              >
+                <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCourseRail(1)}
+                aria-label="Scroll featured courses right"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:translate-x-0.5 hover:border-indigo-300 hover:text-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+              >
+                <ArrowRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <Link to="/explore" className="ml-1 hidden min-h-11 items-center gap-1 rounded-lg px-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50 sm:inline-flex">
+                All courses <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="home-course-filters mt-6 flex gap-2 overflow-x-auto pb-2" aria-label="Filter featured courses by subject">
+            {courseCategories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => {
+                  setActiveCourseCategory(category);
+                  if (courseRailRef.current) courseRailRef.current.scrollLeft = 0;
+                }}
+                aria-pressed={activeCourseCategory === category}
+                className={`min-h-10 shrink-0 rounded-full px-4 py-2 text-sm font-bold transition focus:outline-none focus:ring-4 focus:ring-indigo-100 ${
+                  activeCourseCategory === category
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
+                    : 'border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div
+            ref={courseRailRef}
+            className="home-course-rail mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5 pt-1"
+          >
+            {visibleFeaturedCourses.map((course, index) => (
+              <article
+                key={course.id}
+                className="home-course-card group min-w-0 basis-[84%] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-950/10 sm:basis-[46%] lg:basis-[calc(25%-0.75rem)]"
+                style={{ animationDelay: `${Math.min(index, 5) * 80}ms` }}
+              >
+                <a
+                  href={course.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleFeaturedCourseOpen(course)}
+                  aria-label={`Start ${course.title} by ${course.instructor}`}
+                  className="block focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-indigo-400"
+                >
+                  <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-indigo-100 via-violet-100 to-sky-100">
+                    <img
+                      src={course.thumbnail}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full border border-white/40 bg-slate-950/75 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
+                      {course.subCategory}
+                    </span>
+                    <span className="absolute inset-0 flex items-center justify-center bg-slate-950/0 transition-colors group-hover:bg-slate-950/25">
+                      <span className="flex h-12 w-12 translate-y-2 items-center justify-center rounded-full bg-white text-indigo-700 opacity-0 shadow-xl transition-all group-hover:translate-y-0 group-hover:opacity-100">
+                        <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
+                      </span>
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-indigo-700">
+                      <span>{course.category}</span>
+                      <span className="h-1 w-1 rounded-full bg-indigo-300" aria-hidden="true" />
+                      <span>{course.level}</span>
+                    </div>
+                    <h3 className="mt-2 line-clamp-2 min-h-12 text-base font-extrabold leading-6 text-slate-950">
+                      {course.title}
+                    </h3>
+                    <p className="mt-1 line-clamp-1 text-sm text-slate-500">{course.instructor}</p>
+                    <span className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg bg-indigo-50 px-3.5 text-sm font-extrabold text-indigo-700 transition group-hover:bg-indigo-600 group-hover:text-white">
+                      Start learning <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    </span>
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+          <p className="sr-only" role="status">
+            Showing {visibleFeaturedCourses.length} featured {visibleFeaturedCourses.length === 1 ? 'course' : 'courses'}.
+          </p>
+          {courseTrackingError && (
+            <p role="status" className="mt-2 text-sm font-medium text-rose-700">{courseTrackingError}</p>
+          )}
+          <Link to="/explore" className="mt-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50 sm:hidden">
+            Browse all courses <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </section>
 
