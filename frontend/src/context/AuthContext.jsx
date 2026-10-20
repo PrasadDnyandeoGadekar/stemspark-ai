@@ -1,24 +1,72 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect, useContext } from 'react';
 import { auth } from '../utils/firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
 
 const AuthContext = createContext();
+
+const verificationSettings = () => ({
+  url: `${window.location.origin}/login`,
+});
+
+const createAuthError = (code, message) => Object.assign(new Error(message), { code });
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Professional Google Login Function
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  };
+
+  const createAccount = async (displayName, email, password) => {
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
     try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
+      if (displayName.trim()) {
+        await updateProfile(credential.user, { displayName: displayName.trim() });
+      }
+      await sendEmailVerification(credential.user, verificationSettings());
+    } finally {
+      await signOut(auth);
     }
   };
 
-  // 2. Real Logout Function
+  const loginWithEmail = async (email, password) => {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    if (credential.user.emailVerified) return credential;
+
+    try {
+      await sendEmailVerification(credential.user, verificationSettings());
+    } finally {
+      await signOut(auth);
+    }
+
+    throw createAuthError(
+      'auth/email-not-verified',
+      'Your email is not verified yet. We sent a verification link; check your inbox and spam folder.',
+    );
+  };
+
+  const resendVerificationEmail = async (email, password) => {
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    if (credential.user.emailVerified) return;
+
+    try {
+      await sendEmailVerification(credential.user, verificationSettings());
+    } finally {
+      await signOut(auth);
+    }
+  };
+
   const logout = async () => {
     try {
       await signOut(auth);
@@ -27,22 +75,31 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 3. Real-time Firebase Listener
-  // This watches the app and remembers who is logged in even if they refresh the page!
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      const hasUnverifiedPasswordAccount = currentUser?.providerData.some(
+        ({ providerId }) => providerId === 'password',
+      ) && !currentUser.emailVerified;
+      setUser(hasUnverifiedPasswordAccount ? null : currentUser);
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loginWithGoogle, logout }}>
-      {/* We only show the website once Firebase has finished checking who is logged in */}
-      {!loading && children} 
+    <AuthContext.Provider value={{
+      user,
+      loginWithGoogle,
+      createAccount,
+      loginWithEmail,
+      resendVerificationEmail,
+      logout,
+    }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
+// The context hook stays beside its provider so existing imports remain stable.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
