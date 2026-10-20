@@ -1,85 +1,125 @@
-import React, { useState, useMemo } from 'react';
-import { PlayCircle, Search, Filter, X, ChevronDown, Star } from 'lucide-react';
-import { courseCategories, coursesList } from '../data/courseDatabase';
+import { useMemo, useState } from "react";
+import {
+  ArrowDownWideNarrow,
+  ArrowUpRight,
+  BookOpen,
+  CheckCircle2,
+  ChevronDown,
+  Filter,
+  Languages,
+  Play,
+  Search,
+  SlidersHorizontal,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { courseCategories } from "../data/courseDatabase";
+import { verifiedCourses } from "../data/verifiedCourses";
 
-const PAGE_SIZE = 24;
-
-// Deterministic gradient pair per-card (purely visual variety), computed from
-// the course id — no randomness, no network, cannot fail.
-const GRADIENTS = [
-  'from-indigo-500 to-purple-600',
-  'from-blue-500 to-indigo-600',
-  'from-purple-500 to-pink-600',
-  'from-sky-500 to-blue-700',
-  'from-violet-500 to-indigo-700',
+const PAGE_SIZE = 12;
+const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+const LANGUAGES = ["English", "Hindi", "Hinglish"];
+const COURSE_TYPES = ["Full Course", "Tutorial", "Lecture"];
+const SORT_OPTIONS = [
+  { value: "recommended", label: "Recommended" },
+  { value: "title-asc", label: "Title: A to Z" },
+  { value: "title-desc", label: "Title: Z to A" },
+  { value: "instructor", label: "Instructor" },
 ];
-function gradientFor(id) {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  return GRADIENTS[hash % GRADIENTS.length];
-}
 
-// Renders a real thumbnail image when one exists, and falls back to a pure
-// CSS gradient + play icon (no image request at all, so it can never show a
-// broken/black box) when it doesn't or when the real one fails to load.
 function CourseThumbnail({ course }) {
-  const hasRealThumb = typeof course.thumbnail === 'string' && course.thumbnail.startsWith('http');
   const [failed, setFailed] = useState(false);
 
-  if (!hasRealThumb || failed) {
-    return (
-      <div className={`w-full h-32 sm:h-40 bg-gradient-to-br ${gradientFor(course.id)} flex items-center justify-center`}>
-        <PlayCircle className="text-white w-10 h-10 opacity-90" />
-      </div>
-    );
-  }
-
   return (
-    <img
-      src={course.thumbnail}
-      alt={course.title}
-      loading="lazy"
-      className="w-full h-32 sm:h-40 object-cover"
-      onError={() => setFailed(true)}
-    />
+    <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-indigo-100 via-violet-100 to-sky-100">
+      {!failed ? (
+        <img
+          src={course.thumbnail}
+          alt={`${course.title} video thumbnail`}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-indigo-600 to-violet-700 px-4 text-center text-white">
+          <BookOpen className="h-8 w-8 opacity-90" aria-hidden="true" />
+          <span className="line-clamp-2 text-sm font-semibold">{course.subCategory}</span>
+        </div>
+      )}
+      <div className="absolute inset-0 flex items-center justify-center bg-slate-950/0 transition-colors group-hover:bg-slate-950/20">
+        <span className="flex h-12 w-12 translate-y-2 items-center justify-center rounded-full bg-white/95 text-indigo-700 opacity-0 shadow-xl transition-all group-hover:translate-y-0 group-hover:opacity-100">
+          <Play className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true" />
+        </span>
+      </div>
+      <span className="absolute bottom-3 left-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+        {course.type}
+      </span>
+      {course.featured && (
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/50 bg-white/95 px-2.5 py-1 text-[11px] font-bold text-indigo-700 shadow-sm">
+          <Sparkles className="h-3 w-3" aria-hidden="true" />
+          Featured
+        </span>
+      )}
+    </div>
   );
 }
 
-const LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
-const LANGUAGES = ['Hindi', 'Hinglish', 'English', 'Marathi', 'Bilingual'];
-const TYPES = ['Full Course', 'Tutorial', 'Playlist', 'Lecture', 'Practice', 'Crash Course', 'Certification'];
+function FilterSelect({ label, value, onChange, options, icon: Icon }) {
+  return (
+    <label className="relative block min-w-0">
+      <span className="sr-only">{label}</span>
+      {Icon && (
+        <Icon
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+          aria-hidden="true"
+        />
+      )}
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`h-11 w-full appearance-none rounded-xl border border-slate-200 bg-white py-2 pr-9 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 ${Icon ? "pl-9" : "pl-3"}`}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        aria-hidden="true"
+      />
+    </label>
+  );
+}
 
 function Explore() {
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [activeSubCategory, setActiveSubCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeLevel, setActiveLevel] = useState('All');
-  const [activeLanguage, setActiveLanguage] = useState('All');
-  const [activeType, setActiveType] = useState('All');
-  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [level, setLevel] = useState("All");
+  const [language, setLanguage] = useState("All");
+  const [type, setType] = useState("All");
+  const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const currentSubCategories = activeCategory === 'All'
-    ? []
-    : courseCategories.find(c => c.name === activeCategory)?.subCategories || [];
+  const categories = useMemo(
+    () => ["All", ...courseCategories.map(({ name }) => name).filter((name) => verifiedCourses.some((item) => item.category === name))],
+    [],
+  );
 
   const filteredCourses = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim().toLocaleLowerCase();
+    const filtered = verifiedCourses.filter((course) => {
+      if (activeCategory !== "All" && course.category !== activeCategory) return false;
+      if (level !== "All" && course.level !== level) return false;
+      if (language !== "All" && course.language !== language) return false;
+      if (type !== "All" && course.type !== type) return false;
+      if (!query) return true;
 
-    return coursesList.filter(course => {
-      const matchCategory = activeCategory === 'All' || course.category === activeCategory;
-      const matchSubCategory = activeSubCategory === 'All' || course.subCategory === activeSubCategory;
-      const matchLevel = activeLevel === 'All' || course.level === activeLevel;
-      const matchLanguage = activeLanguage === 'All' || course.language === activeLanguage;
-      const matchType = activeType === 'All' || course.type === activeType;
-      const matchFeatured = !featuredOnly || course.featured === true;
-
-      if (!q) {
-        return matchCategory && matchSubCategory && matchLevel && matchLanguage && matchType && matchFeatured;
-      }
-
-      const haystack = [
+      return [
         course.title,
         course.instructor,
         course.category,
@@ -87,304 +127,269 @@ function Explore() {
         course.language,
         course.level,
         course.type,
-        course.platform,
         course.description,
-        ...(course.tags || []),
-        ...(course.skills || [])
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-
-      const matchSearch = haystack.includes(q);
-
-      return matchCategory && matchSubCategory && matchLevel && matchLanguage && matchType && matchFeatured && matchSearch;
+      ].some((value) => value.toLocaleLowerCase().includes(query));
     });
-  }, [activeCategory, activeSubCategory, activeLevel, activeLanguage, activeType, featuredOnly, searchQuery]);
+
+    if (sort === "title-asc") return filtered.sort((a, b) => a.title.localeCompare(b.title));
+    if (sort === "title-desc") return filtered.sort((a, b) => b.title.localeCompare(a.title));
+    if (sort === "instructor") return filtered.sort((a, b) => a.instructor.localeCompare(b.instructor));
+    return filtered.sort((a, b) => Number(b.featured) - Number(a.featured));
+  }, [activeCategory, language, level, searchQuery, sort, type]);
 
   const visibleCourses = filteredCourses.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredCourses.length;
+  const activeFilterCount = [level !== "All", language !== "All", type !== "All"].filter(Boolean).length;
 
-  const resetPaging = () => setVisibleCount(PAGE_SIZE);
-
-  const clearAllFilters = () => {
-    setActiveCategory('All');
-    setActiveSubCategory('All');
-    setActiveLevel('All');
-    setActiveLanguage('All');
-    setActiveType('All');
-    setFeaturedOnly(false);
-    setSearchQuery('');
-    resetPaging();
+  const resetFilters = () => {
+    setActiveCategory("All");
+    setSearchQuery("");
+    setLevel("All");
+    setLanguage("All");
+    setType("All");
+    setSort("recommended");
+    setVisibleCount(PAGE_SIZE);
   };
 
-  const activeFilterCount = [
-    activeCategory !== 'All',
-    activeSubCategory !== 'All',
-    activeLevel !== 'All',
-    activeLanguage !== 'All',
-    activeType !== 'All',
-    featuredOnly
-  ].filter(Boolean).length;
-
-  const openCourse = (course) => {
-    window.open(course.url, '_blank', 'noopener,noreferrer');
+  const handleCategoryChange = (category) => {
+    setActiveCategory(category);
+    setVisibleCount(PAGE_SIZE);
   };
 
-  const FilterPill = ({ active, onClick, children }) => (
-    <button
-      onClick={onClick}
-      className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-        active
-          ? 'bg-gray-900 text-white'
-          : 'bg-white border border-gray-300 text-gray-700 hover:border-gray-400'
-      }`}
-    >
-      {children}
-    </button>
-  );
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
+    setVisibleCount(PAGE_SIZE);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-
-      {/* Sidebar: category navigation */}
-      <div className="w-full md:w-64 bg-white border-r border-gray-200 p-4 md:p-6 flex-shrink-0">
-        <div className="mb-4 md:mb-8">
-          <h2 className="text-xl font-bold text-gray-900 flex items-center mb-4">
-            <Filter className="w-5 h-5 mr-2 text-indigo-600" />
-            Catalog
-          </h2>
-
-          {/* Horizontally scrollable on mobile, stacked on desktop */}
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0">
-            <button
-              onClick={() => {
-                setActiveCategory('All');
-                setActiveSubCategory('All');
-                resetPaging();
-              }}
-              className={`flex-shrink-0 text-left px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                activeCategory === 'All'
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              All Courses
-            </button>
-
-            {courseCategories.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => {
-                  setActiveCategory(cat.name);
-                  setActiveSubCategory('All');
-                  resetPaging();
-                }}
-                className={`flex-shrink-0 text-left px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                  activeCategory === cat.name
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+    <main className="min-h-screen bg-slate-50 pb-16">
+      <section className="relative isolate overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.36),_transparent_54%),radial-gradient(ellipse_at_bottom_left,_rgba(14,165,233,0.16),_transparent_45%)]" />
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold tracking-wide text-indigo-100">
+              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              FREE, HAND-VERIFIED LEARNING
+            </span>
+            <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Learn something
+              <span className="block bg-gradient-to-r from-indigo-300 via-violet-200 to-sky-200 bg-clip-text text-transparent">
+                that moves you forward.
+              </span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+              Explore trusted, free lessons from leading educators. Every video link and thumbnail in this collection has been checked.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-200">
+              <span className="inline-flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-300" aria-hidden="true" />
+                {verifiedCourses.length} verified resources
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Languages className="h-4 w-4 text-sky-300" aria-hidden="true" />
+                English, Hindi & Hinglish
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav
+          aria-label="Course categories"
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 py-5 scrollbar-none sm:mx-0 sm:px-0"
+        >
+          {categories.map((category) => {
+            const count = category === "All"
+              ? verifiedCourses.length
+              : verifiedCourses.filter((course) => course.category === category).length;
+            const isActive = activeCategory === category;
 
-        <div className="mb-6 space-y-3">
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => handleCategoryChange(category)}
+                aria-pressed={isActive}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                    : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                }`}
+              >
+                {category}
+                <span className={`rounded-full px-1.5 py-0.5 text-[11px] ${isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
 
-          {/* Search */}
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="Search title, instructor, skill, language..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                resetPaging();
-              }}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
+        <section aria-label="Find courses" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex flex-col gap-3 lg:flex-row">
+            <label className="relative min-w-0 flex-1">
+              <span className="sr-only">Search courses</span>
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  setVisibleCount(PAGE_SIZE);
+                }}
+                placeholder="Search courses, skills or educators..."
+                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3 lg:w-[23rem]">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((open) => !open)}
+                aria-expanded={filtersOpen}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="rounded-full bg-indigo-600 px-1.5 py-0.5 text-[11px] text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+              <FilterSelect
+                label="Sort courses"
+                value={sort}
+                onChange={handleFilterChange(setSort)}
+                options={SORT_OPTIONS}
+                icon={ArrowDownWideNarrow}
+              />
+            </div>
           </div>
 
-          {/* Subcategory pills */}
-          {activeCategory !== 'All' && (
-            <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-              <FilterPill active={activeSubCategory === 'All'} onClick={() => { setActiveSubCategory('All'); resetPaging(); }}>
-                All {activeCategory}
-              </FilterPill>
-              {currentSubCategories.map((sub) => (
-                <FilterPill key={sub} active={activeSubCategory === sub} onClick={() => { setActiveSubCategory(sub); resetPaging(); }}>
-                  {sub}
-                </FilterPill>
-              ))}
+          {filtersOpen && (
+            <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3">
+              <FilterSelect
+                label="Filter by level"
+                value={level}
+                onChange={handleFilterChange(setLevel)}
+                options={[{ value: "All", label: "All levels" }, ...LEVELS.map((item) => ({ value: item, label: item }))]}
+              />
+              <FilterSelect
+                label="Filter by language"
+                value={language}
+                onChange={handleFilterChange(setLanguage)}
+                options={[{ value: "All", label: "All languages" }, ...LANGUAGES.map((item) => ({ value: item, label: item }))]}
+                icon={Languages}
+              />
+              <FilterSelect
+                label="Filter by course type"
+                value={type}
+                onChange={handleFilterChange(setType)}
+                options={[{ value: "All", label: "All formats" }, ...COURSE_TYPES.map((item) => ({ value: item, label: item }))]}
+              />
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLevel("All");
+                    setLanguage("All");
+                    setType("All");
+                    setVisibleCount(PAGE_SIZE);
+                  }}
+                  className="inline-flex items-center gap-1.5 justify-self-start text-sm font-semibold text-indigo-700 hover:text-indigo-900 sm:col-span-3"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                  Clear filters
+                </button>
+              )}
             </div>
           )}
+        </section>
 
-          {/* Collapsible filter panel (mobile-friendly) */}
+        <div className="flex flex-col gap-2 py-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <button
-              onClick={() => setFiltersOpen((o) => !o)}
-              className="flex items-center gap-2 text-sm font-semibold text-gray-700 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-              {activeFilterCount > 0 && (
-                <span className="bg-indigo-600 text-white text-xs rounded-full px-2 py-0.5">{activeFilterCount}</span>
-              )}
-              <ChevronDown className={`w-4 h-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {filtersOpen && (
-              <div className="mt-3 bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-
-                <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Level</p>
-                  <div className="flex flex-wrap gap-2">
-                    <FilterPill active={activeLevel === 'All'} onClick={() => { setActiveLevel('All'); resetPaging(); }}>All</FilterPill>
-                    {LEVELS.map((lvl) => (
-                      <FilterPill key={lvl} active={activeLevel === lvl} onClick={() => { setActiveLevel(lvl); resetPaging(); }}>{lvl}</FilterPill>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Language</p>
-                  <div className="flex flex-wrap gap-2">
-                    <FilterPill active={activeLanguage === 'All'} onClick={() => { setActiveLanguage('All'); resetPaging(); }}>All</FilterPill>
-                    {LANGUAGES.map((lang) => (
-                      <FilterPill key={lang} active={activeLanguage === lang} onClick={() => { setActiveLanguage(lang); resetPaging(); }}>{lang}</FilterPill>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase mb-2">Type</p>
-                  <div className="flex flex-wrap gap-2">
-                    <FilterPill active={activeType === 'All'} onClick={() => { setActiveType('All'); resetPaging(); }}>All</FilterPill>
-                    {TYPES.map((t) => (
-                      <FilterPill key={t} active={activeType === t} onClick={() => { setActiveType(t); resetPaging(); }}>{t}</FilterPill>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={featuredOnly}
-                      onChange={(e) => { setFeaturedOnly(e.target.checked); resetPaging(); }}
-                      className="rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                    Featured only
-                  </label>
-
-                  {activeFilterCount > 0 && (
-                    <button
-                      onClick={clearAllFilters}
-                      className="flex items-center gap-1 text-sm text-red-600 font-medium hover:underline"
-                    >
-                      <X className="w-4 h-4" /> Clear all
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
+            <p className="text-sm font-semibold text-indigo-700">{activeCategory === "All" ? "THE LEARNING LIBRARY" : activeCategory.toUpperCase()}</p>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+              {activeCategory === "All" ? "Explore free courses" : `Explore ${activeCategory}`}
+            </h2>
           </div>
-
-          <p className="text-sm text-gray-500">
-            {filteredCourses.length} resource{filteredCourses.length !== 1 ? 's' : ''} found
+          <p className="text-sm text-slate-500" aria-live="polite">
+            Showing <span className="font-semibold text-slate-800">{visibleCourses.length}</span> of{" "}
+            <span className="font-semibold text-slate-800">{filteredCourses.length}</span> verified resources
           </p>
         </div>
 
-        {/* Course grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-
-          {visibleCourses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col"
-            >
-              <div
-                className="relative cursor-pointer"
-                onClick={() => openCourse(course)}
+        {filteredCourses.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {visibleCourses.map((course) => (
+              <a
+                key={course.id}
+                href={course.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Watch ${course.title} by ${course.instructor} on YouTube`}
+                className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-200/70 focus:outline-none focus:ring-4 focus:ring-indigo-200"
               >
                 <CourseThumbnail course={course} />
-
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                  <PlayCircle className="text-white w-10 h-10 sm:w-12 sm:h-12 opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all" />
-                </div>
-
-                {course.level && (
-                  <span className="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs font-bold px-2 py-1 rounded">
-                    {course.level}
-                  </span>
-                )}
-
-                {course.featured && (
-                  <span className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-yellow-900" /> Featured
-                  </span>
-                )}
-              </div>
-
-              <div className="p-3 sm:p-4 flex-1 flex flex-col">
-                <p className="text-xs font-bold text-indigo-600 mb-1">
-                  {course.subCategory}
-                </p>
-
-                <h3
-                  className="font-bold text-gray-900 leading-tight mb-2 line-clamp-2 text-sm sm:text-base"
-                  title={course.title}
-                >
-                  {course.title}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-gray-500 mb-2">
-                  {course.instructor}
-                </p>
-
-                <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
-                  {course.language && (
-                    <span className="text-[10px] sm:text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                      {course.language}
+                <div className="flex flex-1 flex-col p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">{course.subCategory}</p>
+                  <h3 className="mt-2 line-clamp-2 min-h-12 text-base font-bold leading-6 text-slate-950">
+                    {course.title}
+                  </h3>
+                  <p className="mt-1.5 line-clamp-1 text-sm text-slate-500">{course.instructor}</p>
+                  <p className="mt-3 line-clamp-2 text-sm leading-5 text-slate-600">{course.description}</p>
+                  <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                    {[course.level, course.language].map((tag) => (
+                      <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                        {tag}
+                      </span>
+                    ))}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                      Verified
                     </span>
-                  )}
-                  {course.type && (
-                    <span className="text-[10px] sm:text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                      {course.type}
-                    </span>
-                  )}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-sm font-semibold">
+                    <span className="text-indigo-700">Watch free</span>
+                    <ArrowUpRight className="h-4 w-4 text-indigo-600 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-
-          {filteredCourses.length === 0 && (
-            <div className="col-span-full text-center py-12 text-gray-500">
-              No courses found matching your search.
-            </div>
-          )}
-        </div>
-
-        {hasMore && (
-          <div className="flex justify-center mt-8">
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-16 text-center">
+            <Search className="mx-auto h-9 w-9 text-slate-300" aria-hidden="true" />
+            <h3 className="mt-4 text-lg font-bold text-slate-900">No courses match those filters</h3>
+            <p className="mt-1 text-sm text-slate-500">Try another search or clear your filters to see more lessons.</p>
             <button
-              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+              type="button"
+              onClick={resetFilters}
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
             >
-              Load More ({filteredCourses.length - visibleCount} more)
+              <Filter className="h-4 w-4" aria-hidden="true" />
+              Clear search and filters
             </button>
           </div>
         )}
 
+        {visibleCount < filteredCourses.length && (
+          <div className="mt-9 flex flex-col items-center">
+            <p className="mb-3 text-xs text-slate-500">
+              {filteredCourses.length - visibleCount} more {filteredCourses.length - visibleCount === 1 ? "resource" : "resources"}
+            </p>
+            <button
+              type="button"
+              onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+            >
+              Load more courses
+              <ChevronDown className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </main>
   );
 }
 
