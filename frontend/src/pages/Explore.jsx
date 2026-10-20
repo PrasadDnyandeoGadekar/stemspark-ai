@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import {
   ArrowDownWideNarrow,
   ArrowUpRight,
+  Bookmark,
+  BookmarkCheck,
   BookOpen,
   CheckCircle2,
   ChevronDown,
@@ -15,6 +17,8 @@ import {
 } from "lucide-react";
 import { courseCategories } from "../data/courseDatabase";
 import { verifiedCourses } from "../data/verifiedCourses";
+import { useAuth } from "../context/AuthContext";
+import { getLearningData, recordCourseVisit, toggleSavedCourse } from "../services/learningData";
 
 const PAGE_SIZE = 12;
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "Unspecified"];
@@ -96,6 +100,7 @@ function FilterSelect({ label, value, onChange, options, icon: Icon }) {
 }
 
 function Explore() {
+  const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [level, setLevel] = useState("All");
@@ -104,6 +109,18 @@ function Explore() {
   const [sort, setSort] = useState("recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [, setSavedVersion] = useState(0);
+  const [storageError, setStorageError] = useState("");
+  const savedCourseIds = getLearningData(user?.uid).savedCourseIds;
+
+  const handleCourseOpen = (course) => {
+    try {
+      recordCourseVisit(user?.uid, course);
+      setStorageError("");
+    } catch (error) {
+      setStorageError(error.message);
+    }
+  };
 
   const categories = useMemo(
     () => ["All", ...courseCategories.map(({ name }) => name).filter((name) => verifiedCourses.some((item) => item.category === name))],
@@ -194,6 +211,11 @@ function Explore() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {storageError && (
+          <div role="alert" className="mt-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+            {storageError}
+          </div>
+        )}
         <nav
           aria-label="Course categories"
           className="-mx-4 flex gap-2 overflow-x-auto px-4 py-5 scrollbar-none sm:mx-0 sm:px-0"
@@ -322,19 +344,52 @@ function Explore() {
         {filteredCourses.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleCourses.map((course) => (
-              <a
+              <article
                 key={course.id}
-                href={course.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Watch ${course.title} by ${course.instructor} on YouTube`}
                 className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-200/70 focus:outline-none focus:ring-4 focus:ring-indigo-200"
               >
-                <CourseThumbnail course={course} />
+                <div className="relative">
+                  <a
+                    href={course.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => handleCourseOpen(course)}
+                    aria-label={`Watch ${course.title} by ${course.instructor} on YouTube`}
+                  >
+                    <CourseThumbnail course={course} />
+                  </a>
+                  <button
+                    type="button"
+                    aria-label={savedCourseIds.includes(course.id) ? `Remove ${course.title} from saved courses` : `Save ${course.title}`}
+                    aria-pressed={savedCourseIds.includes(course.id)}
+                    onClick={() => {
+                      try {
+                        toggleSavedCourse(user?.uid, course);
+                        setSavedVersion((version) => version + 1);
+                        setStorageError("");
+                      } catch (error) {
+                        setStorageError(error.message);
+                      }
+                    }}
+                    className="absolute left-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-indigo-700 shadow-md transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {savedCourseIds.includes(course.id)
+                      ? <BookmarkCheck className="h-4 w-4" aria-hidden="true" />
+                      : <Bookmark className="h-4 w-4" aria-hidden="true" />}
+                  </button>
+                </div>
                 <div className="flex flex-1 flex-col p-4">
                   <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">{course.subCategory}</p>
-                  <h3 className="mt-2 line-clamp-2 min-h-12 text-base font-bold leading-6 text-slate-950">
+                  <h3 className="mt-2 min-h-12 text-base font-bold leading-6 text-slate-950">
+                    <a
+                      href={course.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => handleCourseOpen(course)}
+                      className="line-clamp-2 rounded-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
                     {course.title}
+                    </a>
                   </h3>
                   <p className="mt-1.5 line-clamp-1 text-sm text-slate-500">{course.instructor}</p>
                   <p className="mt-3 line-clamp-2 text-sm leading-5 text-slate-600">{course.description}</p>
@@ -350,11 +405,19 @@ function Explore() {
                     </span>
                   </div>
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-sm font-semibold">
-                    <span className="text-indigo-700">Watch free</span>
-                    <ArrowUpRight className="h-4 w-4 text-indigo-600 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                    <a
+                      href={course.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => handleCourseOpen(course)}
+                      className="inline-flex w-full items-center justify-between text-indigo-700"
+                    >
+                      <span>Watch free</span>
+                      <ArrowUpRight className="h-4 w-4 text-indigo-600 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+                    </a>
                   </div>
                 </div>
-              </a>
+              </article>
             ))}
           </div>
         ) : (

@@ -1,5 +1,6 @@
 // src/pages/Quiz.jsx
-import React, { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Loader2, AlertTriangle, RefreshCcw, ArrowLeft, Trophy } from "lucide-react";
 
 import QuizSetup from "../components/quiz/QuizSetup";
@@ -10,6 +11,7 @@ import QuizHistory from "../components/quiz/QuizHistory";
 
 import { generateQuiz } from "../services/quizService";
 import { getQuizStats, saveQuizResult } from "../utils/quizUtils";
+import { useAuth } from "../context/AuthContext";
 
 // STATES: setup | generating | quiz | result | review | error | session-summary
 const STATE = {
@@ -29,6 +31,9 @@ const LOADING_MESSAGES = [
 ];
 
 export default function Quiz() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const handledRecommendation = useRef("");
   const [state, setState] = useState(STATE.SETUP);
   const [setupError, setSetupError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -75,6 +80,17 @@ export default function Quiz() {
     loadQuiz(cfg, []);
   };
 
+  useEffect(() => {
+    const topic = new URLSearchParams(location.search).get("topic")?.trim();
+    if (!topic || handledRecommendation.current === location.key) return;
+    handledRecommendation.current = location.key;
+    const recommendedConfig = { category: "", subCategory: "", topic, difficulty: "Medium" };
+    setConfig(recommendedConfig);
+    setAskedQuestions([]);
+    setSessionRounds([]);
+    loadQuiz(recommendedConfig, []);
+  }, [location.key, location.search, loadQuiz]);
+
   const handleAnswer = (selectedKey) => {
     const nextAnswers = [...answers, selectedKey];
     setAnswers(nextAnswers);
@@ -88,14 +104,28 @@ export default function Quiz() {
         return sum + (opt?.correct ? 1 : 0);
       }, 0);
 
-      saveQuizResult({
-        topic: quiz.topic,
-        category: config.category,
-        subCategory: config.subCategory,
-        difficulty: quiz.difficulty,
-        score,
-        totalQuestions: quiz.questions.length,
-      });
+      try {
+        saveQuizResult({
+          id: `${Date.now()}`,
+          topic: quiz.topic,
+          category: config.category,
+          subCategory: config.subCategory,
+          difficulty: quiz.difficulty,
+          score,
+          totalQuestions: quiz.questions.length,
+          questions: quiz.questions.map((question, index) => ({
+            id: question.id,
+            question: question.question,
+            explanation: question.explanation,
+            options: question.options,
+            selectedKey: nextAnswers[index],
+            correctKey: question.options.find((option) => option.correct)?.key,
+            isCorrect: question.options.find((option) => option.key === nextAnswers[index])?.correct || false,
+          })),
+        }, user?.uid);
+      } catch (error) {
+        setErrorMessage(error.message || "Your quiz result could not be saved on this device.");
+      }
 
       setSessionRounds((prev) => [...prev, { score, total: quiz.questions.length }]);
       setState(STATE.RESULT);
@@ -128,7 +158,7 @@ export default function Quiz() {
     setState(STATE.SETUP);
   };
 
-  const overallStats = getQuizStats();
+  const overallStats = getQuizStats(undefined, user?.uid);
 
   // ---------------------------------------------------------------------
   // Render per state
@@ -144,7 +174,7 @@ export default function Quiz() {
   }
 
   if (state === STATE.GENERATING) {
-    const msg = LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
+    const msg = LOADING_MESSAGES[0];
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-center">
         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
@@ -209,6 +239,11 @@ export default function Quiz() {
           onReview={() => setState(STATE.REVIEW)}
           onStop={handleStop}
         />
+        {errorMessage && (
+          <p role="alert" className="mx-auto mt-4 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            Quiz complete. {errorMessage}
+          </p>
+        )}
       </div>
     );
   }

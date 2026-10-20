@@ -1,6 +1,6 @@
 // src/utils/quizUtils.js
 
-const HISTORY_KEY = "stemspark_quiz_history_v1";
+import { getQuizHistory as getStoredQuizHistory, recordQuizAttempt } from "../services/learningData";
 
 /** Fisher-Yates shuffle — does not mutate the input array. */
 export function shuffleArray(arr) {
@@ -92,31 +92,18 @@ export function feedbackForScore(score) {
 // a real backend — swap these three functions out later without touching UI).
 // ---------------------------------------------------------------------------
 
-export function getQuizHistory() {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+export function getQuizHistory(userId) {
+  return getStoredQuizHistory(userId);
 }
 
-export function saveQuizResult(entry) {
-  try {
-    const history = getQuizHistory();
-    history.push({ ...entry, date: new Date().toISOString() });
-    // Keep this bounded so localStorage doesn't grow forever.
-    const trimmed = history.slice(-200);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-  } catch {
-    // localStorage can fail (private browsing, quota) — never let this crash the quiz.
-  }
+export function saveQuizResult(entry, userId) {
+  return recordQuizAttempt(userId, { ...entry, date: new Date().toISOString() });
 }
 
-export function getQuizStats(topic) {
+export function getQuizStats(topic, userId) {
   const history = topic
-    ? getQuizHistory().filter((h) => h.topic === topic)
-    : getQuizHistory();
+    ? getQuizHistory(userId).filter((h) => h.topic === topic)
+    : getQuizHistory(userId);
 
   if (history.length === 0) {
     return { quizzesCompleted: 0, averageScore: 0, bestScore: 0, accuracy: 0, questionsAttempted: 0 };
