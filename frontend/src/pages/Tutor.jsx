@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -122,7 +122,7 @@ function Tutor() {
   }
 
   return (
-    <div className="fixed top-16 left-0 right-0 bottom-0 bg-white flex flex-col md:flex-row overflow-hidden z-30">
+    <div className="fixed inset-x-0 bottom-0 top-16 z-30 flex min-h-0 flex-col overflow-hidden bg-white md:flex-row">
       
       <div className="hidden md:flex w-64 bg-gray-50 border-r border-gray-200 flex-col p-4">
         <div className="flex items-center text-indigo-700 font-bold mb-6">
@@ -143,35 +143,35 @@ function Tutor() {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full h-full">
+      <div className="mx-auto flex h-full min-h-0 w-full min-w-0 max-w-4xl flex-1 flex-col">
         
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-3 sm:space-y-6 sm:p-6">
           {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={index} className={`flex min-w-0 gap-2 sm:gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               
               {message.role === 'ai' && (
-                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0 mt-1 shadow-sm">
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 shadow-sm">
                   <Bot className="w-5 h-5 text-indigo-600" />
                 </div>
               )}
 
-              <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-4 shadow-sm ${
+              <div className={`min-w-0 max-w-[calc(100%-2.5rem)] overflow-hidden rounded-2xl px-3 py-3 shadow-sm sm:max-w-[75%] sm:px-5 sm:py-4 ${
                 message.role === 'user' 
                   ? 'bg-indigo-600 text-white rounded-tr-none' 
                   : 'bg-white border border-gray-100 text-gray-800 rounded-tl-none'
               }`}>
                 {message.role === 'user' ? (
-                  <p className="leading-relaxed text-[15px]">{message.content}</p>
+                  <p className="break-words text-[15px] leading-relaxed">{message.content}</p>
                 ) : (
-                  <div className="leading-relaxed text-[15px] prose prose-sm max-w-none overflow-x-auto break-words prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0">
+                  <div className="prose prose-sm min-w-0 max-w-none break-words text-[15px] leading-relaxed prose-pre:m-0 prose-pre:max-w-full prose-pre:overflow-x-auto prose-pre:bg-transparent prose-pre:p-0">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm, remarkMath]}
                       rehypePlugins={[rehypeKatex]}
                       components={{
-                        code({ node, inline, className, children, ...props }) {
+                        code({ inline, className, children, ...props }) {
                           const match = /language-(\w+)/.exec(className || '');
                           return !inline && match ? (
-                            <div className="rounded-md overflow-hidden my-4 shadow-md border border-gray-700">
+                            <div className="my-4 min-w-0 max-w-full overflow-hidden rounded-md border border-gray-700 shadow-md">
                               <div className="bg-gray-800 text-gray-300 text-xs px-4 py-2 flex justify-between items-center font-mono border-b border-gray-700">
                                 <span>{match[1]}</span>
                               </div>
@@ -199,7 +199,7 @@ function Tutor() {
               </div>
 
               {message.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center ml-3 flex-shrink-0 mt-1 shadow-sm">
+                <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 shadow-sm">
                   <User className="w-5 h-5 text-indigo-600" />
                 </div>
               )}
@@ -208,10 +208,10 @@ function Tutor() {
 
           {isTyping && (
             <div className="flex justify-start">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0 mt-1 shadow-sm">
+              <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 shadow-sm">
                 <Bot className="w-5 h-5 text-indigo-600" />
               </div>
-              <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-tl-none px-6 py-5 flex items-center space-x-2 max-w-[85%] sm:max-w-[75%]">
+              <div className="flex max-w-[calc(100%-2.5rem)] items-center space-x-2 rounded-2xl rounded-tl-none border border-gray-100 bg-white px-5 py-4 shadow-sm sm:max-w-[75%]">
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
@@ -223,7 +223,7 @@ function Tutor() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50 backdrop-blur-sm">
+        <div className="shrink-0 border-t border-gray-100 bg-gray-50/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4">
           <form onSubmit={handleSendMessage} className="relative flex items-center shadow-sm rounded-full bg-white border border-gray-200 hover:border-indigo-300 transition-colors focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
             <input 
               type="text" 
@@ -231,7 +231,7 @@ function Tutor() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me a STEM question..." 
-              className="w-full bg-transparent border-none rounded-full pl-6 pr-14 py-4 focus:outline-none focus:ring-0 text-gray-700 placeholder-gray-400"
+              className="w-full min-w-0 bg-transparent border-none rounded-full pl-4 pr-12 py-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0 sm:py-4 sm:pl-6 sm:pr-14"
             />
             <button 
               type="submit"

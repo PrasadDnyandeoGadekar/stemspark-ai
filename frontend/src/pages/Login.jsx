@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Sparkles, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 function Login() {
-  const [isLogin, setIsLogin] = useState(true);
   const { loginWithGoogle, user } = useAuth();
   const navigate = useNavigate();
 
@@ -17,12 +16,12 @@ function Login() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+      <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
         
         <div className="text-center mb-8">
           <Sparkles className="mx-auto h-12 w-12 text-indigo-600" />
-          <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
-            {isLogin ? 'Welcome back' : 'Create your account'}
+          <h2 className="mt-4 text-2xl font-extrabold text-gray-900 sm:text-3xl">
+            Welcome back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to save your STEMSpark AI progress.
@@ -50,7 +49,7 @@ function Login() {
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+            <span className="bg-white px-2 text-gray-500">Or continue with email</span>
           </div>
         </div>
 
@@ -75,7 +74,7 @@ function Login() {
           </div>
 
           <button type="submit" className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all opacity-80 cursor-not-allowed">
-            {isLogin ? 'Sign In with Email' : 'Create Account'}
+            Sign In with Email
           </button>
         </form>
 

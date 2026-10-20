@@ -181,13 +181,13 @@ function Explore() {
     <main className="min-h-screen bg-slate-50 pb-16">
       <section className="relative isolate overflow-hidden bg-slate-950">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_rgba(99,102,241,0.36),_transparent_54%),radial-gradient(ellipse_at_bottom_left,_rgba(14,165,233,0.16),_transparent_45%)]" />
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold tracking-wide text-indigo-100">
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
               FREE, HAND-VERIFIED LEARNING
             </span>
-            <h1 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white [overflow-wrap:anywhere] sm:mt-5 sm:text-5xl lg:text-6xl">
               Learn something
               <span className="block bg-gradient-to-r from-indigo-300 via-violet-200 to-sky-200 bg-clip-text text-transparent">
                 that moves you forward.
@@ -196,7 +196,7 @@ function Explore() {
             <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
               Explore trusted, free lessons from leading educators. Every video link and thumbnail in this collection has been checked.
             </p>
-            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-200">
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-slate-200 sm:mt-7 sm:text-sm">
               <span className="inline-flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-300" aria-hidden="true" />
                 {verifiedCourses.length} verified resources
@@ -218,7 +218,7 @@ function Explore() {
         )}
         <nav
           aria-label="Course categories"
-          className="-mx-4 flex gap-2 overflow-x-auto px-4 py-5 scrollbar-none sm:mx-0 sm:px-0"
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 py-4 scrollbar-none sm:mx-0 sm:py-5 sm:px-0"
         >
           {categories.map((category) => {
             const count = category === "All"
@@ -232,7 +232,7 @@ function Explore() {
                 type="button"
                 onClick={() => handleCategoryChange(category)}
                 aria-pressed={isActive}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+                className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
                   isActive
                     ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
                     : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
@@ -247,7 +247,7 @@ function Explore() {
           })}
         </nav>
 
-        <section aria-label="Find courses" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <section aria-label="Find courses" className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
           <div className="flex flex-col gap-3 lg:flex-row">
             <label className="relative min-w-0 flex-1">
               <span className="sr-only">Search courses</span>

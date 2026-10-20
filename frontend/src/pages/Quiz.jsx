@@ -166,7 +166,7 @@ export default function Quiz() {
 
   if (state === STATE.SETUP) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 py-4 sm:py-8">
         <QuizHistory stats={overallStats} />
         <QuizSetup onStart={handleStart} initialError={setupError} />
       </div>
@@ -176,7 +176,7 @@ export default function Quiz() {
   if (state === STATE.GENERATING) {
     const msg = LOADING_MESSAGES[0];
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-center">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 flex flex-col items-center justify-center px-4 py-8 text-center">
         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
         <p className="text-lg font-bold text-gray-900">{msg}</p>
         <p className="text-gray-500 mt-1">
@@ -188,7 +188,7 @@ export default function Quiz() {
 
   if (state === STATE.ERROR) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-center">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 flex flex-col items-center justify-center px-4 py-8 text-center">
         <div className="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
           <AlertTriangle className="w-7 h-7 text-red-600" />
         </div>
@@ -216,7 +216,7 @@ export default function Quiz() {
 
   if (state === STATE.QUIZ && quiz) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 py-4 sm:py-8">
         <QuizQuestion
           question={quiz.questions[currentIndex]}
           index={currentIndex}
@@ -229,7 +229,7 @@ export default function Quiz() {
 
   if (state === STATE.RESULT && quiz) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 py-4 sm:py-8">
         <QuizResult
           topic={quiz.topic}
           difficulty={quiz.difficulty}
@@ -250,7 +250,7 @@ export default function Quiz() {
 
   if (state === STATE.REVIEW && quiz) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 py-4 sm:py-8">
         <QuizReview
           questions={quiz.questions}
           answers={answers}
@@ -271,8 +271,8 @@ export default function Quiz() {
     const accuracy = totalQuestions ? Math.round((totalScore / totalQuestions) * 100) : 0;
 
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
+      <div className="min-h-[calc(100dvh-4rem)] bg-gray-50 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-5 text-center sm:p-8">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-100 rounded-2xl mb-4">
             <Trophy className="w-7 h-7 text-indigo-600" />
           </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Heart, GraduationCap, BookOpen, Laptop, IndianRupee } from 'lucide-react';
 
 function Donate() {
@@ -13,26 +13,26 @@ function Donate() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-16 sm:py-24">
+    <div className="min-h-screen bg-gray-50 py-10 sm:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-16">
-          <Heart className="mx-auto h-12 w-12 text-rose-500 mb-4 animate-pulse" />
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+        <div className="mb-10 text-center sm:mb-16">
+          <Heart className="mx-auto mb-4 h-10 w-10 text-rose-500 sm:h-12 sm:w-12" />
+          <h1 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
             Empower an Orphan's Future
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-base text-gray-600 sm:text-xl">
             100% of your donation provides STEM education, devices, and AI tutoring to children without parental care.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-2 lg:gap-8">
           
           {/* Left Column: Impact Details */}
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+          <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Impact</h2>
             
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div className="flex items-start">
                 <div className="flex-shrink-0 bg-indigo-50 p-3 rounded-xl">
                   <Laptop className="h-6 w-6 text-indigo-600" />
@@ -66,18 +66,18 @@ function Donate() {
           </div>
 
           {/* Right Column: Donation Form */}
-          <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-200">
+          <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-xl sm:p-8">
             <form onSubmit={handleDonate}>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Make a Donation</h2>
               
               {/* Preset Amounts */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
                 {[500, 1000, 5000].map((preset) => (
                   <button
                     key={preset}
                     type="button"
                     onClick={() => { setAmount(preset); setCustomAmount(''); }}
-                    className={`py-3 px-4 rounded-xl font-bold border-2 transition-all flex items-center justify-center ${
+                    className={`flex min-h-12 items-center justify-center rounded-xl border-2 px-2 py-3 text-sm font-bold transition-all sm:px-4 sm:text-base ${
                       amount === preset && !customAmount
                         ? 'bg-indigo-50 border-indigo-600 text-indigo-700'
                         : 'border-gray-100 bg-white text-gray-600 hover:border-indigo-200'

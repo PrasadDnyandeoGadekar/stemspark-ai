@@ -70,7 +70,7 @@ function App() {
       <Router>
         <StudySessionTracker />
         {/* Global wrapper with default text colors and flex layout to stick footer to bottom */}
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
+        <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-gray-50 font-sans text-gray-900 flex flex-col">
 
           <Navbar />
 

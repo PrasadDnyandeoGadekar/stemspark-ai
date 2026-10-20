@@ -32,7 +32,7 @@ function SectionHeading({ eyebrow, title, action }) {
     <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
       <div>
         {eyebrow && <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">{eyebrow}</p>}
-        <h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-950 sm:text-2xl">{title}</h2>
+        <h2 className="mt-1 text-lg font-extrabold tracking-tight text-slate-950 sm:text-2xl">{title}</h2>
       </div>
       {action}
     </div>
@@ -47,22 +47,22 @@ function StatCard({ icon: Icon, label, value, detail, tone = "indigo" }) {
     sky: "bg-sky-50 text-sky-700",
   };
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-      <div className="flex items-start justify-between gap-3">
+    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
+      <div className="flex items-start justify-between gap-2 sm:gap-3">
         <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${tones[tone]}`}>
           <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
-        {detail && <span className="text-right text-xs font-medium text-slate-500">{detail}</span>}
+        {detail && <span className="min-w-0 text-right text-[10px] font-medium leading-4 text-slate-500 sm:text-xs">{detail}</span>}
       </div>
-      <p className="mt-4 text-2xl font-black tracking-tight text-slate-950">{value}</p>
-      <p className="mt-1 text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-3 break-words text-xl font-black tracking-tight text-slate-950 sm:mt-4 sm:text-2xl">{value}</p>
+      <p className="mt-1 text-xs font-medium leading-4 text-slate-500 sm:text-sm sm:leading-normal">{label}</p>
     </div>
   );
 }
 
 function EmptyState({ icon: Icon, title, text, action }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center">
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center sm:px-5 sm:py-10">
       <Icon className="mx-auto h-9 w-9 text-slate-300" aria-hidden="true" />
       <h3 className="mt-3 font-bold text-slate-900">{title}</h3>
       <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">{text}</p>
@@ -399,28 +399,28 @@ function Dashboard() {
 
   return (
     <main className="min-h-screen bg-slate-50 pb-16">
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
-        <header className="relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-7 text-white shadow-lg sm:px-9 sm:py-9">
+      <div className="mx-auto w-full min-w-0 max-w-7xl px-3 py-5 sm:px-6 sm:py-10 lg:px-8">
+        <header className="relative overflow-hidden rounded-2xl bg-slate-950 px-4 py-5 text-white shadow-lg sm:rounded-3xl sm:px-9 sm:py-9">
           <div className="pointer-events-none absolute -right-10 -top-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
-          <div className="relative flex flex-wrap items-center justify-between gap-5">
-            <div className="flex items-center gap-4">
+          <div className="relative flex min-w-0 flex-wrap items-center justify-between gap-4 sm:gap-5">
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
               {user.photoURL
-                ? <img src={user.photoURL} alt="" className="h-14 w-14 rounded-2xl border border-white/20 object-cover" referrerPolicy="no-referrer" />
-                : <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-xl font-bold">{firstName[0]}</div>}
-              <div>
-                <p className="text-sm font-semibold text-indigo-200">YOUR LEARNING DASHBOARD</p>
-                <h1 className="mt-1 text-2xl font-black sm:text-3xl">Welcome back, {firstName}</h1>
-                <p className="mt-1 text-sm text-slate-300">Your progress, practice and next steps—grounded in what you record.</p>
+                ? <img src={user.photoURL} alt="" className="h-11 w-11 shrink-0 rounded-xl border border-white/20 object-cover sm:h-14 sm:w-14 sm:rounded-2xl" referrerPolicy="no-referrer" />
+                : <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-xl font-bold sm:h-14 sm:w-14 sm:rounded-2xl">{firstName[0]}</div>}
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-indigo-200 sm:text-sm">YOUR LEARNING DASHBOARD</p>
+                <h1 className="mt-1 break-words text-xl font-black sm:text-3xl">Welcome back, {firstName}</h1>
+                <p className="mt-1 text-xs leading-5 text-slate-300 sm:text-sm">Your progress, practice and next steps—grounded in what you record.</p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Link to="/explore" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-indigo-50"><BookOpen className="h-4 w-4" /> Explore courses</Link>
-              <button type="button" onClick={handleLogout} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10"><LogOut className="h-4 w-4" /> Sign out</button>
+            <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+              <Link to="/explore" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white px-3 py-2.5 text-sm font-bold text-slate-900 hover:bg-indigo-50 sm:flex-none sm:px-4"><BookOpen className="h-4 w-4" /> Explore courses</Link>
+              <button type="button" onClick={handleLogout} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 px-3 py-2.5 text-sm font-semibold text-white hover:bg-white/10 sm:flex-none sm:px-4"><LogOut className="h-4 w-4" /> Sign out</button>
             </div>
           </div>
         </header>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-6 sm:gap-3 lg:grid-cols-4">
           <StatCard icon={GraduationCap} label="Courses started" value={startedCourses.length} detail={`${completedCourses.length} completed`} />
           <StatCard icon={TrendingUp} label="Recorded course progress" value={`${overallProgress}%`} detail={startedCourses.length ? "Based on your saved updates" : "No progress recorded"} tone="emerald" />
           <StatCard icon={Trophy} label="Quiz attempts" value={attempts.length} detail={attempts.length ? `${averageScore}/10 average` : "No completed quizzes"} tone="sky" />
@@ -430,20 +430,20 @@ function Dashboard() {
         <section className="mt-9">
           <SectionHeading eyebrow="Pick up where you left off" title="Continue learning" action={<Link to="/explore" className="inline-flex items-center gap-1 text-sm font-bold text-indigo-700 hover:text-indigo-900">Find a course <ArrowRight className="h-4 w-4" /></Link>} />
           {recentCourses.length ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid min-w-0 gap-3 sm:gap-4 md:grid-cols-2">
               {recentCourses.slice(0, 2).map((course) => (
-                <article key={course.id} className="flex overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <a href={course.url} target="_blank" rel="noopener noreferrer" onClick={() => handleCourseOpen(course)} className="w-32 shrink-0 bg-slate-100 sm:w-44" aria-label={`Resume ${course.title}`}>
-                    <img src={course.thumbnail} alt="" loading="lazy" className="h-full min-h-32 w-full object-cover" />
+                <article key={course.id} className="flex min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <a href={course.url} target="_blank" rel="noopener noreferrer" onClick={() => handleCourseOpen(course)} className="w-24 shrink-0 bg-slate-100 sm:w-44" aria-label={`Resume ${course.title}`}>
+                    <img src={course.thumbnail} alt="" loading="lazy" className="h-full min-h-28 w-full object-cover sm:min-h-32" />
                   </a>
-                  <div className="flex min-w-0 flex-1 flex-col p-4">
+                  <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4">
                     <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">{course.subCategory}</p>
                     <h3 className="mt-1 line-clamp-2 font-bold text-slate-950">{course.title}</h3>
                     <p className="mt-1 line-clamp-1 text-xs text-slate-500">{course.lastLesson ? `Last recorded lesson: ${course.lastLesson}` : "Video watch position is not available"}</p>
                     <div className="mt-auto pt-3">
                       <div className="mb-1.5 flex justify-between text-xs font-semibold text-slate-500"><span>Recorded progress</span><span>{course.progress || 0}%</span></div>
                       <ProgressBar value={course.progress || 0} />
-                      <a href={course.url} target="_blank" rel="noopener noreferrer" onClick={() => handleCourseOpen(course)} className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-indigo-700 hover:text-indigo-900">
+                      <a href={course.url} target="_blank" rel="noopener noreferrer" onClick={() => handleCourseOpen(course)} className="mt-3 inline-flex min-h-10 items-center gap-1.5 text-sm font-bold text-indigo-700 hover:text-indigo-900">
                         <Play className="h-4 w-4" /> Resume learning
                       </a>
                     </div>
@@ -458,17 +458,17 @@ function Dashboard() {
 
         <section className="mt-9">
           <SectionHeading eyebrow="Your library" title="My courses" />
-          <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="My course lists">
+          <div className="mb-4 -mx-3 flex gap-2 overflow-x-auto px-3 pb-2 sm:mx-0 sm:px-0" role="tablist" aria-label="My course lists">
             {COURSE_TABS.map((item) => (
-              <button key={item} type="button" role="tab" aria-selected={tab === item} onClick={() => setTab(item)} className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${tab === item ? "bg-indigo-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-200"}`}>{item}</button>
+              <button key={item} type="button" role="tab" aria-selected={tab === item} onClick={() => setTab(item)} className={`min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${tab === item ? "bg-indigo-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-200"}`}>{item}</button>
             ))}
           </div>
           {courseTabItems.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid min-w-0 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {courseTabItems.slice(0, 6).map((course) => (
                 <article key={course.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   <a href={course.url} target="_blank" rel="noopener noreferrer" onClick={() => handleCourseOpen(course)} className="block aspect-video bg-slate-100"><img src={course.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" /></a>
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <p className="text-xs font-bold uppercase tracking-wide text-indigo-700">{course.category}</p>
                     <h3 className="mt-1 line-clamp-2 font-bold text-slate-950">{course.title}</h3>
                     <p className="mt-1 text-sm text-slate-500">{course.instructor} · {course.progress || 0}% recorded</p>
@@ -489,7 +489,7 @@ function Dashboard() {
           )}
         </section>
 
-        <section className="mt-9">
+        <section className="mt-7 sm:mt-9">
           <SectionHeading eyebrow="Practice insights" title="AI quiz analytics" action={<Link to="/quiz" className="inline-flex items-center gap-1 text-sm font-bold text-indigo-700">Start AI quiz <ArrowRight className="h-4 w-4" /></Link>} />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard icon={Trophy} label="Completed attempts" value={attempts.length} tone="indigo" />

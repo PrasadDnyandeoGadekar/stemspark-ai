@@ -1,5 +1,4 @@
 // src/components/quiz/QuizResult.jsx
-import React from "react";
 import { PartyPopper, Check, X, RotateCcw, ListChecks, Square } from "lucide-react";
 import { feedbackForScore } from "../../utils/quizUtils";
 
@@ -17,28 +16,28 @@ export default function QuizResult({
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6">
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 text-center">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 text-center sm:p-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-2xl mb-4">
           <PartyPopper className="w-8 h-8 text-indigo-600" />
         </div>
 
-        <h2 className="text-2xl font-extrabold text-gray-900">Quiz Complete!</h2>
-        <p className="text-gray-500 font-medium mt-1">
+        <h2 className="text-xl font-extrabold text-gray-900 sm:text-2xl">Quiz Complete!</h2>
+        <p className="mt-1 break-words font-medium text-gray-500">
           {topic} &middot; {difficulty}
         </p>
 
-        <div className="my-6">
-          <p className="text-5xl font-extrabold text-indigo-600">
+        <div className="my-5 sm:my-6">
+          <p className="text-4xl font-extrabold text-indigo-600 sm:text-5xl">
             {score} / {total}
           </p>
           <p className="text-xl font-bold text-gray-400 mt-1">{pct}%</p>
         </div>
 
-        <div className="flex justify-center gap-6 mb-6">
-          <span className="flex items-center gap-1.5 text-green-600 font-bold">
+        <div className="mb-6 flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6">
+          <span className="flex items-center gap-1.5 font-bold text-green-600">
             <Check className="w-5 h-5" /> {score} Correct
           </span>
-          <span className="flex items-center gap-1.5 text-red-500 font-bold">
+          <span className="flex items-center gap-1.5 font-bold text-red-500">
             <X className="w-5 h-5" /> {wrong} Wrong
           </span>
         </div>
