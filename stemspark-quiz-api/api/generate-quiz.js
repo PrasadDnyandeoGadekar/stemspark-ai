@@ -1,12 +1,9 @@
 const MODEL_CANDIDATES = [
-  ...new Set([
-    "gemini-3.5-flash-lite",
-    "gemini-3.8-flash",
-    "gemini-3.6-flash",
-    process.env.GEMINI_MODEL,
-  ].filter(Boolean)),
-];
-const MODEL_REQUEST_TIMEOUT_MS = 17000;
+  process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+  "gemini-3.8-flash",
+  "gemini-3.6-flash",
+].filter((model, index, models) => models.indexOf(model) === index);
+const MODEL_REQUEST_TIMEOUT_MS = 12000;
 const VALID_DIFFICULTIES = ["Easy", "Medium", "Hard", "Mixed"];
 
 function buildPrompt({ category, subCategory, topic, difficulty, avoidQuestions }) {
@@ -75,6 +72,12 @@ function validateQuiz(data) {
   return null;
 }
 
+function isTransientError(error) {
+  return error?.name === "TimeoutError"
+    || error?.name === "AbortError"
+    || [408, 429, 500, 502, 503, 504].includes(Number(error?.status));
+}
+
 async function generateOnce({ category, subCategory, topic, difficulty, avoidQuestions, modelName }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Missing GEMINI_API_KEY.");
@@ -128,22 +131,26 @@ module.exports = async (req, res) => {
   if (!topic) return res.status(400).json({ message: "Topic required." });
 
   let lastError = null;
-  for (const modelName of MODEL_CANDIDATES) {
-    try {
-      const quiz = await generateOnce({
-        category: body.category || "", subCategory: body.subCategory || "",
-        topic, difficulty, avoidQuestions: body.previousQuestions || [], modelName,
-      });
-      return res.status(200).json(quiz);
-    } catch (err) {
-      lastError = err;
-      console.warn(`Model ${modelName} failed:`, err.message);
+  for (let modelIndex = 0; modelIndex < MODEL_CANDIDATES.length; modelIndex += 1) {
+    const modelName = MODEL_CANDIDATES[modelIndex];
+    const attempts = modelIndex === 0 ? 2 : 1;
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      try {
+        const quiz = await generateOnce({
+          category: body.category || "", subCategory: body.subCategory || "",
+          topic, difficulty, avoidQuestions: body.previousQuestions || [], modelName,
+        });
+        return res.status(200).json(quiz);
+      } catch (err) {
+        lastError = err;
+        console.warn(`Model ${modelName} attempt ${attempt} failed:`, err.message);
+        if (!isTransientError(err) || attempt === attempts) break;
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
     }
   }
   console.error("All models failed:", lastError?.message);
-  const isTransient = lastError?.name === "TimeoutError"
-    || [408, 429, 500, 502, 503, 504].includes(Number(lastError?.status))
-    || /\b(429|503)\b/.test(String(lastError?.message));
+  const isTransient = isTransientError(lastError);
   res.status(isTransient ? 503 : 500).json({
     error: isTransient ? "temporarily_unavailable" : "internal",
     message: isTransient
