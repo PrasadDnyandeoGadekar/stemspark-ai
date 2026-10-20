@@ -186,3 +186,41 @@ main {
 :root[data-theme="dark"] .prose {
   color: #cbd5e1;
 }
+
+:root[data-theme="dark"] .tutor-shell {
+  background-color: #0b1020;
+}
+
+:root[data-theme="dark"] .tutor-sidebar,
+:root[data-theme="dark"] .tutor-composer {
+  background-color: #111827;
+}
+
+:root[data-theme="dark"] .tutor-composer {
+  border-color: #2b3549;
+}
+
+:root[data-theme="dark"] :is(.tutor-ai-message, .tutor-typing, .tutor-session-button) {
+  background-color: #151c2e;
+  border-color: #2b3549;
+  color: #e2e8f0;
+}
+
+:root[data-theme="dark"] .tutor-session-active {
+  background-color: #252449;
+  border-color: #464476;
+  color: #c7d2fe;
+}
+
+:root[data-theme="dark"] .tutor-input-form {
+  background-color: #202a3d;
+  border-color: #3a465c;
+}
+
+:root[data-theme="dark"] .tutor-input-form input {
+  color: #f1f5f9;
+}
+
+:root[data-theme="dark"] .tutor-initializing {
+  background-color: #0b1020;
+}

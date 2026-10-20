@@ -114,7 +114,7 @@ function Tutor() {
 
   if (isInitializing) {
     return (
-      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-50">
+      <div className="tutor-initializing fixed inset-0 bg-white flex flex-col items-center justify-center z-50">
         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
         <p className="font-medium text-gray-500 animate-pulse">Syncing secure study session...</p>
       </div>
@@ -122,21 +122,21 @@ function Tutor() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 top-16 z-30 flex min-h-0 flex-col overflow-hidden bg-white md:flex-row">
+    <div className="tutor-shell fixed inset-x-0 bottom-0 top-16 z-30 flex min-h-0 flex-col overflow-hidden bg-white md:flex-row">
       
-      <div className="hidden md:flex w-64 bg-gray-50 border-r border-gray-200 flex-col p-4">
+      <div className="tutor-sidebar hidden w-64 flex-col border-r border-gray-200 bg-gray-50 p-4 md:flex">
         <div className="flex items-center text-indigo-700 font-bold mb-6">
           <Sparkles className="w-5 h-5 mr-2" />
           Study Sessions
         </div>
         
-        <button className="text-left w-full px-4 py-3 bg-indigo-50 border border-indigo-200 rounded-lg text-sm font-bold text-indigo-700 shadow-sm mb-3">
+        <button className="tutor-session-active mb-3 w-full rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-left text-sm font-bold text-indigo-700 shadow-sm">
           Active Study Session
         </button>
         
         <button 
           onClick={handleNewSession}
-          className="text-left w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 shadow-sm mb-2 hover:border-indigo-400 hover:text-indigo-700 transition-colors flex items-center group"
+          className="tutor-session-button group mb-2 flex w-full items-center rounded-lg border border-gray-200 bg-white px-4 py-3 text-left text-sm font-medium text-gray-700 shadow-sm transition-colors hover:border-indigo-400 hover:text-indigo-700"
         >
           <PlusCircle className="w-4 h-4 mr-2 text-gray-400 group-hover:text-indigo-600 transition-colors" />
           Start New Topic
@@ -158,7 +158,7 @@ function Tutor() {
               <div className={`min-w-0 max-w-[calc(100%-2.5rem)] overflow-hidden rounded-2xl px-3 py-3 shadow-sm sm:max-w-[75%] sm:px-5 sm:py-4 ${
                 message.role === 'user' 
                   ? 'bg-indigo-600 text-white rounded-tr-none' 
-                  : 'bg-white border border-gray-100 text-gray-800 rounded-tl-none'
+                  : 'tutor-ai-message bg-white border border-gray-100 text-gray-800 rounded-tl-none'
               }`}>
                 {message.role === 'user' ? (
                   <p className="break-words text-[15px] leading-relaxed">{message.content}</p>
@@ -211,7 +211,7 @@ function Tutor() {
               <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 shadow-sm">
                 <Bot className="w-5 h-5 text-indigo-600" />
               </div>
-              <div className="flex max-w-[calc(100%-2.5rem)] items-center space-x-2 rounded-2xl rounded-tl-none border border-gray-100 bg-white px-5 py-4 shadow-sm sm:max-w-[75%]">
+              <div className="tutor-typing flex max-w-[calc(100%-2.5rem)] items-center space-x-2 rounded-2xl rounded-tl-none border border-gray-100 bg-white px-5 py-4 shadow-sm sm:max-w-[75%]">
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
@@ -223,8 +223,8 @@ function Tutor() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="shrink-0 border-t border-gray-100 bg-gray-50/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4">
-          <form onSubmit={handleSendMessage} className="relative flex items-center shadow-sm rounded-full bg-white border border-gray-200 hover:border-indigo-300 transition-colors focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+        <div className="tutor-composer shrink-0 border-t border-gray-100 bg-gray-50/95 p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:p-4">
+          <form onSubmit={handleSendMessage} className="tutor-input-form relative flex items-center rounded-full border border-gray-200 bg-white shadow-sm transition-colors hover:border-indigo-300 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
             <input 
               type="text" 
               value={inputValue}
