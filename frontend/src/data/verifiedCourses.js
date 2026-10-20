@@ -1,3 +1,5 @@
+import expandedCourses from "./expandedCourses.json";
+
 const course = ({
   id,
   videoId,
@@ -27,7 +29,7 @@ const course = ({
   featured,
 });
 
-export const verifiedCourses = [
+const featuredCourses = [
   course({
     id: "python-freecodecamp",
     videoId: "rfscVS0vtbw",
@@ -337,3 +339,5 @@ export const verifiedCourses = [
     description: "An introductory lesson for the Class 10 Biology chapter on life processes.",
   }),
 ];
+
+export const verifiedCourses = [...featuredCourses, ...expandedCourses];

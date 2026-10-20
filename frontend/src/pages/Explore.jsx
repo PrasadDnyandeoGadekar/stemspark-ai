@@ -17,7 +17,7 @@ import { courseCategories } from "../data/courseDatabase";
 import { verifiedCourses } from "../data/verifiedCourses";
 
 const PAGE_SIZE = 12;
-const LEVELS = ["Beginner", "Intermediate", "Advanced"];
+const LEVELS = ["Beginner", "Intermediate", "Advanced", "Unspecified"];
 const LANGUAGES = ["English", "Hindi", "Hinglish"];
 const COURSE_TYPES = ["Full Course", "Tutorial", "Lecture"];
 const SORT_OPTIONS = [
@@ -272,7 +272,7 @@ function Explore() {
                 label="Filter by level"
                 value={level}
                 onChange={handleFilterChange(setLevel)}
-                options={[{ value: "All", label: "All levels" }, ...LEVELS.map((item) => ({ value: item, label: item }))]}
+                options={[{ value: "All", label: "All levels" }, ...LEVELS.map((item) => ({ value: item, label: item === "Unspecified" ? "Not specified" : item }))]}
               />
               <FilterSelect
                 label="Filter by language"
@@ -339,7 +339,7 @@ function Explore() {
                   <p className="mt-1.5 line-clamp-1 text-sm text-slate-500">{course.instructor}</p>
                   <p className="mt-3 line-clamp-2 text-sm leading-5 text-slate-600">{course.description}</p>
                   <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
-                    {[course.level, course.language].map((tag) => (
+                    {[course.level === "Unspecified" ? "Level not specified" : course.level, course.language].map((tag) => (
                       <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                         {tag}
                       </span>
