@@ -15,7 +15,13 @@ Category: ${category || "General"}
 Subcategory: ${subCategory || "General"}
 Topic: ${topic}
 Difficulty: ${difficulty}
-${avoidBlock}Create exactly 10 distinct multiple-choice questions, each with exactly four options labeled A, B, C, and D; one correct answer; and a short, accurate explanation. Return only the requested structured data.`;
+${avoidBlock}Create exactly 10 distinct multiple-choice questions, each with exactly four options labeled A, B, C, and D; one correct answer; and a short, accurate explanation. Return only the requested structured data.
+
+For mathematics, chemistry, physics, and other notation:
+- Write inline formulas in LaTeX wrapped in single dollar signs, such as "$\\log_{2}(32) + \\log_{3}(81)$" or "$\\sin(30^\\circ) \\times \\cos(60^\\circ)$".
+- Use "$$...$$" only for a standalone display equation.
+- Keep the surrounding sentence outside the math delimiters; never output raw formatting markers such as "##" instead of math delimiters.
+- Escape backslashes correctly so the response remains valid JSON.`;
 }
 
 const QUIZ_RESPONSE_SCHEMA = {

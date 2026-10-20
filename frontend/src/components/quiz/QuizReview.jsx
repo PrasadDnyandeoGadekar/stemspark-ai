@@ -1,6 +1,6 @@
 // src/components/quiz/QuizReview.jsx
-import React from "react";
 import { Check, X, ArrowLeft, RotateCcw, Square } from "lucide-react";
+import QuizFormattedText from "./QuizFormattedText";
 
 export default function QuizReview({ questions, answers, onBack, onPracticeAgain, onStop }) {
   return (
@@ -26,18 +26,23 @@ export default function QuizReview({ questions, answers, onBack, onPracticeAgain
           return (
             <div key={q.id} className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5">
               <p className="text-xs font-bold text-gray-400 mb-1">Question {i + 1}</p>
-              <p className="font-bold text-gray-900 mb-3">{q.question}</p>
+              <p className="font-bold text-gray-900 mb-3">
+                <QuizFormattedText>{q.question}</QuizFormattedText>
+              </p>
 
               <div className="text-sm space-y-1.5 mb-3">
                 <p className="text-gray-600">
                   Your answer:{" "}
                   <span className={`font-semibold ${isCorrect ? "text-green-600" : "text-red-600"}`}>
-                    {studentOpt ? studentOpt.text : "No answer"}
+                    {studentOpt ? <QuizFormattedText>{studentOpt.text}</QuizFormattedText> : "No answer"}
                   </span>
                 </p>
                 {!isCorrect && (
                   <p className="text-gray-600">
-                    Correct answer: <span className="font-semibold text-green-600">{correctOpt?.text}</span>
+                    Correct answer:{" "}
+                    <span className="font-semibold text-green-600">
+                      <QuizFormattedText>{correctOpt?.text}</QuizFormattedText>
+                    </span>
                   </p>
                 )}
               </div>
@@ -53,7 +58,7 @@ export default function QuizReview({ questions, answers, onBack, onPracticeAgain
 
               <p className="text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
                 <span className="font-semibold text-gray-700">Explanation: </span>
-                {q.explanation}
+                <QuizFormattedText>{q.explanation}</QuizFormattedText>
               </p>
             </div>
           );

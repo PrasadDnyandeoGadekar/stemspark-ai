@@ -1,7 +1,8 @@
 // src/components/quiz/QuizQuestion.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import QuizProgress from "./QuizProgress";
+import QuizFormattedText from "./QuizFormattedText";
 
 export default function QuizQuestion({ question, index, total, onAnswer }) {
   const [selected, setSelected] = useState(null);
@@ -23,7 +24,7 @@ export default function QuizQuestion({ question, index, total, onAnswer }) {
 
       <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-7">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-5 leading-snug">
-          {question.question}
+          <QuizFormattedText>{question.question}</QuizFormattedText>
         </h2>
 
         <div className="space-y-3" role="radiogroup" aria-label={`Question ${index + 1} options`}>
@@ -51,7 +52,7 @@ export default function QuizQuestion({ question, index, total, onAnswer }) {
                 >
                   {opt.key}
                 </span>
-                <span className="text-gray-800 font-medium">{opt.text}</span>
+                <QuizFormattedText className="text-gray-800 font-medium">{opt.text}</QuizFormattedText>
               </button>
             );
           })}
