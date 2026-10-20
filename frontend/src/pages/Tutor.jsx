@@ -94,7 +94,12 @@ function Tutor() {
       await saveChatToDatabase(finalMessages);
     } catch (error) {
       console.error(error);
-      setMessages([...newMessages, { role: 'ai', content: "Sorry, I had trouble connecting. Please try again." }]);
+      const finalMessages = [...newMessages, {
+        role: 'ai',
+        content: error.message || "AI Tutor is temporarily unavailable. Please try again.",
+      }];
+      setMessages(finalMessages);
+      await saveChatToDatabase(finalMessages);
     } finally {
       setIsTyping(false);
     }
