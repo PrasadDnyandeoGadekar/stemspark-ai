@@ -1,6 +1,6 @@
 import Donate from './pages/Donate';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
@@ -11,6 +11,7 @@ import Tutor from './pages/Tutor';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Quiz from './pages/Quiz';
+const CodeArena = lazy(() => import('./pages/CodeArena'));
 import { useAuth } from './context/AuthContext';
 import { recordStudyTime } from './services/learningData';
 
@@ -19,7 +20,7 @@ function StudySessionTracker() {
   const location = useLocation();
   const checkpointRef = useRef(0);
   const lastInteractionRef = useRef(0);
-  const isStudyRoute = ['/explore', '/quiz', '/tutor'].includes(location.pathname);
+  const isStudyRoute = ['/explore', '/quiz', '/tutor', '/code-arena'].includes(location.pathname);
 
   useEffect(() => {
     checkpointRef.current = Date.now();
@@ -86,6 +87,14 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/donate" element={<Donate />} />
                 <Route path="/quiz" element={<Quiz />} />
+                <Route
+                  path="/code-arena"
+                  element={(
+                    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-sm font-semibold text-slate-500">Loading Code Arena…</div>}>
+                      <CodeArena />
+                    </Suspense>
+                  )}
+                />
               </Routes>
             </main>
 

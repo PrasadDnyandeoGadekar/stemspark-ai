@@ -5,6 +5,9 @@
     },
     "api/tutor.js": {
       "maxDuration": 60
+    },
+    "api/code-arena.js": {
+      "maxDuration": 60
     }
   }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Home, BookOpen, BrainCircuit, Trophy, LogIn, LogOut, LayoutDashboard, Heart, Menu, Moon, Sun, X } from 'lucide-react';
+import { Sparkles, Home, BookOpen, BrainCircuit, Trophy, Code2, LogIn, LogOut, LayoutDashboard, Heart, Menu, Moon, Sun, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; // <-- Import the context
 import { useTheme } from '../context/ThemeContext';
 
@@ -59,6 +59,10 @@ function Navbar() {
             <Link to="/tutor" className="flex items-center font-medium text-gray-600 transition-colors hover:text-indigo-600">
               <BrainCircuit className="h-5 w-5 sm:mr-1.5" />
               <span>AI Tutor</span>
+            </Link>
+            <Link to="/code-arena" className="flex items-center font-bold text-indigo-600 transition-colors hover:text-indigo-800">
+              <Code2 className="h-5 w-5 sm:mr-1.5" />
+              <span>Code Arena</span>
             </Link>
             <Link to="/quiz" className="flex items-center font-medium text-gray-600 transition-colors hover:text-indigo-600">
               <Trophy className="h-5 w-5 sm:mr-1.5" />
@@ -120,6 +124,9 @@ function Navbar() {
             </Link>
             <Link to="/tutor" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
               <BrainCircuit className="h-5 w-5" /> AI Tutor
+            </Link>
+            <Link to="/code-arena" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 font-bold text-indigo-700 hover:bg-indigo-50">
+              <Code2 className="h-5 w-5" /> Code Arena
             </Link>
             <Link to="/quiz" onClick={closeMenu} className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
               <Trophy className="h-5 w-5" /> Quiz
